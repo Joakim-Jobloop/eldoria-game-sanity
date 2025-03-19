@@ -1,3 +1,9 @@
+interface Selection {
+  title: string
+  subtitle: string
+  media: string | undefined
+}
+
 export default {
   name: 'item',
   title: 'Item',
@@ -48,11 +54,35 @@ export default {
         !(parent?.itemType == 'equippable' && parent?.subType == 'armour'),
       //TODO: Should be extended to have more options (from damage - to damage ? elemental damage? Should be split into armour and weapon?)
       fields: [
-        // {name: "duability", title: "Durability", type: "number"},
+        {
+          name: 'armourType',
+          title: 'Armour Type',
+          type: 'array', // Make sure it's an array since you want multiple selections
+          of: [{type: 'string'}],
+          options: {
+            layout: 'grid', // Keeps checkbox layout for multiple selections
+            list: [
+              {title: 'Heavy', value: 'heavy'},
+              {title: 'Medium', value: 'medium'},
+              {title: 'light', value: 'light'},
+            ],
+          },
+        },
         {name: 'slot', title: 'Slot', type: 'string'},
-        {name: 'damageType', title: 'Damage Type', type: 'string'},
-        // {name: 'damage', title: 'array', of: [{lower: 'number'}, {higher: 'number'}]},
-        {name: 'defense', title: 'Defense', type: 'number'},
+        {name: 'duability', title: 'Durability', type: 'number'},
+        {
+          name: 'defenses',
+          title: 'Defenses',
+          type: 'object',
+          fields: [
+            {name: 'flame', title: 'Flame', type: 'number'},
+            {name: 'frost', title: 'Frost', type: 'number'},
+            {name: 'lightning', title: 'Lightning', type: 'number'},
+            {name: 'entropis', title: 'Entropis', type: 'number'},
+            {name: 'vitalis', title: 'Vitalis', type: 'number'},
+            {name: 'aether', title: 'Aether', type: 'number'},
+          ],
+        },
       ],
     },
     {
@@ -60,26 +90,130 @@ export default {
       title: 'Weapon',
       type: 'object',
       hidden: ({parent}: {parent: {itemType: string; subType: string}}) =>
-        !(parent?.itemType === 'equippable' && parent?.subType === 'weapon'),
+        !(parent?.itemType == 'equippable' && parent?.subType == 'weapon'),
       //TODO: Should be extended to have more options (from damage - to damage ? elemental damage? Should be split into armour and weapon?)
       fields: [
-        // {name: "duability", title: "Durability", type: "number"},
+        {
+          name: 'weaponType',
+          title: 'Weapon Type',
+          type: 'array', // Make sure it's an array since you want multiple selections
+          of: [{type: 'string'}],
+          options: {
+            layout: 'grid', // Keeps checkbox layout for multiple selections
+            list: [
+              {title: 'Dagger', value: 'dagger'},
+              {title: 'Sword', value: 'sword'},
+              {title: 'Bow', value: 'bow'},
+              {title: 'Staff', value: 'Staff'},
+              {title: 'Projectile', value: 'projectile'},
+              {title: 'Wand', value: 'wand'},
+              {title: 'Mace', value: 'mace'},
+              {title: 'Battle axe', value: 'battleaxe'},
+            ],
+          },
+        },
         {name: 'slot', title: 'Slot', type: 'string'},
-        {name: 'damageType', title: 'Damage Type', type: 'string'},
-        // {name: 'damage', title: 'array', of: [{lower: 'number'}, {higher: 'number'}]},
-        {name: 'defense', title: 'Defense', type: 'number'},
+        {name: 'duability', title: 'Durability', type: 'number'},
+        {
+          name: 'damage',
+          title: 'Damage',
+          type: 'object',
+          fields: [
+            {
+              name: 'flame',
+              title: 'Flame',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    {name: 'lower', type: 'number'},
+                    {name: 'higher', type: 'number'},
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'frost',
+              title: 'Frost',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    {name: 'lower', type: 'number'},
+                    {name: 'higher', type: 'number'},
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'lightning',
+              title: 'Lightning',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    {name: 'lower', type: 'number'},
+                    {name: 'higher', type: 'number'},
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'entropis',
+              title: 'Entropis',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    {name: 'lower', type: 'number'},
+                    {name: 'higher', type: 'number'},
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'vitalis',
+              title: 'Vitalis',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    {name: 'lower', type: 'number'},
+                    {name: 'higher', type: 'number'},
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'aeather',
+              title: 'Aether',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    {name: 'lower', type: 'number'},
+                    {name: 'higher', type: 'number'},
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ],
     },
 
-    // ✅ Show only if itemType is "equippable and weapon"
-    //TODO create this section
-
-    // ✅ Show only if itemType is "consumable"
     {
-      name: 'consumable',
-      title: 'Consumable',
+      name: 'potion',
+      title: 'Potion',
       type: 'object',
-      hidden: ({parent}: {parent: {itemType: string}}) => parent?.itemType !== 'consumable',
+      hidden: ({parent}: {parent: {itemType: string; subType: string}}) =>
+        !(parent?.itemType == 'consumable' && parent?.subType == 'potion'),
       fields: [
         {
           name: 'effectType',
@@ -89,13 +223,31 @@ export default {
             list: ['restore, buff'],
           },
         },
+        // {
+        //   name: 'effectType',
+        //   title: 'Effect Type',
+        //   type: 'array', // Make sure it's an array since you want multiple selections
+        //   of: [{type: 'string'}],
+        //   options: {
+        //     layout: 'grid', // Keeps checkbox layout for multiple selections
+        //     list: [
+        //       {title: 'Buff', value: 'buff'},
+        //       {title: '', value: 'sword'},
+        //       {title: 'Bow', value: 'bow'},
+        //       {title: 'Staff', value: 'Staff'},
+        //       {title: 'Projectile', value: 'projectile'},
+        //       {title: 'Wand', value: 'wand'},
+        //       {title: 'Mace', value: 'mace'},
+        //       {title: 'Battle axe', value: 'battleaxe'},
+        //     ],
+        //   },
+        // },
         {name: 'affectedStat', title: 'Affected Stat', type: 'string'},
         {name: 'effectAmount', title: 'Effect Amount', type: 'number'},
         {name: 'duration', title: 'Duration', type: 'string'},
       ],
     },
 
-    // ✅ Show only if itemType is "crafting"
     {
       name: 'crafting',
       title: 'Crafting',
@@ -116,4 +268,19 @@ export default {
     {name: 'buyPrice', title: 'Buy Price', type: 'number'},
     {name: 'sellPrice', title: 'Sell Price', type: 'number'},
   ],
+  preview: {
+    select: {
+      title: 'name',
+      subtitle: 'itemType',
+      media: 'src',
+    },
+    prepare(selection: Selection) {
+      const {title, subtitle, media} = selection
+      return {
+        title: title || 'Unnamed Item',
+        subtitle: `Type: ${subtitle || 'Unknown'}`,
+        media: media || undefined,
+      }
+    },
+  },
 }
