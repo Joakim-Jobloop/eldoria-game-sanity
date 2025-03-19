@@ -1,4 +1,4 @@
 import item from "../schemas/item";
-import playerInventory from "../schemas/playerInventory";
+import character from "../schemas/character";
 
-export const schemaTypes = [item, playerInventory]
+export const schemaTypes = [item, character]
