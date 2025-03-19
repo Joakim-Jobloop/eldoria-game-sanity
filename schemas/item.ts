@@ -1,3 +1,5 @@
+//! hidden needs to use contains instead so you can choose more than 1 catagory.
+
 interface Selection {
   title: string
   subtitle: string
@@ -28,10 +30,10 @@ export default {
     {
       name: 'subType',
       title: 'Sub Type',
-      type: 'array', // Make sure it's an array since you want multiple selections
+      type: 'array',
       of: [{type: 'string'}],
       options: {
-        layout: 'grid', // Keeps checkbox layout for multiple selections
+        layout: 'grid',
         list: [
           {title: 'Weapon', value: 'weapon'},
           {title: 'Armour', value: 'armour'},
@@ -39,8 +41,9 @@ export default {
           {title: 'Potion', value: 'potion'},
           {title: 'Food', value: 'food'},
           {title: 'Ingredient', value: 'ingredient'},
+          //TODO implement the last two ones:
           {title: 'Material', value: 'material'},
-          {title: 'Spices', value: 'spices'},
+          {title: 'Spice', value: 'spice'},
         ],
       },
     },
@@ -50,26 +53,28 @@ export default {
       name: 'armour',
       title: 'Armour',
       type: 'object',
-      hidden: ({parent}: {parent: {itemType: string; subType: string}}) =>
-        !(parent?.itemType == 'equippable' && parent?.subType == 'armour'),
-      //TODO: Should be extended to have more options (from damage - to damage ? elemental damage? Should be split into armour and weapon?)
+      hidden: ({parent}: {parent: {itemType: string[]; subType: string[]}}) =>
+        !(
+          parent?.itemType?.includes('equippable') &&
+          parent?.subType?.some((sub) => sub === 'armour')
+        ),
       fields: [
         {
           name: 'armourType',
           title: 'Armour Type',
-          type: 'array', // Make sure it's an array since you want multiple selections
+          type: 'array',
           of: [{type: 'string'}],
           options: {
-            layout: 'grid', // Keeps checkbox layout for multiple selections
+            layout: 'grid',
             list: [
               {title: 'Heavy', value: 'heavy'},
               {title: 'Medium', value: 'medium'},
-              {title: 'light', value: 'light'},
+              {title: 'Light', value: 'light'},
             ],
           },
         },
         {name: 'slot', title: 'Slot', type: 'string'},
-        {name: 'duability', title: 'Durability', type: 'number'},
+        {name: 'durability', title: 'Durability', type: 'number'},
         {
           name: 'defenses',
           title: 'Defenses',
@@ -89,17 +94,19 @@ export default {
       name: 'weapon',
       title: 'Weapon',
       type: 'object',
-      hidden: ({parent}: {parent: {itemType: string; subType: string}}) =>
-        !(parent?.itemType == 'equippable' && parent?.subType == 'weapon'),
-      //TODO: Should be extended to have more options (from damage - to damage ? elemental damage? Should be split into armour and weapon?)
+      hidden: ({parent}: {parent: {itemType: string[]; subType: string[]}}) =>
+        !(
+          parent?.itemType?.includes('equippable') &&
+          parent?.subType?.some((sub) => sub === 'weapon')
+        ),
       fields: [
         {
           name: 'weaponType',
           title: 'Weapon Type',
-          type: 'array', // Make sure it's an array since you want multiple selections
+          type: 'array',
           of: [{type: 'string'}],
           options: {
-            layout: 'grid', // Keeps checkbox layout for multiple selections
+            layout: 'grid',
             list: [
               {title: 'Dagger', value: 'dagger'},
               {title: 'Sword', value: 'sword'},
@@ -113,7 +120,7 @@ export default {
           },
         },
         {name: 'slot', title: 'Slot', type: 'string'},
-        {name: 'duability', title: 'Durability', type: 'number'},
+        {name: 'durability', title: 'Durability', type: 'number'},
         {
           name: 'damage',
           title: 'Damage',
@@ -127,8 +134,8 @@ export default {
                 {
                   type: 'object',
                   fields: [
-                    {name: 'lower', type: 'number'},
-                    {name: 'higher', type: 'number'},
+                    {name: 'minDamage', type: 'number'},
+                    {name: 'maxDamage', type: 'number'},
                   ],
                 },
               ],
@@ -141,8 +148,8 @@ export default {
                 {
                   type: 'object',
                   fields: [
-                    {name: 'lower', type: 'number'},
-                    {name: 'higher', type: 'number'},
+                    {name: 'minDamage', type: 'number'},
+                    {name: 'maxDamage', type: 'number'},
                   ],
                 },
               ],
@@ -155,8 +162,8 @@ export default {
                 {
                   type: 'object',
                   fields: [
-                    {name: 'lower', type: 'number'},
-                    {name: 'higher', type: 'number'},
+                    {name: 'minDamage', type: 'number'},
+                    {name: 'maxDamage', type: 'number'},
                   ],
                 },
               ],
@@ -169,8 +176,8 @@ export default {
                 {
                   type: 'object',
                   fields: [
-                    {name: 'lower', type: 'number'},
-                    {name: 'higher', type: 'number'},
+                    {name: 'minDamage', type: 'number'},
+                    {name: 'maxDamage', type: 'number'},
                   ],
                 },
               ],
@@ -183,26 +190,69 @@ export default {
                 {
                   type: 'object',
                   fields: [
-                    {name: 'lower', type: 'number'},
-                    {name: 'higher', type: 'number'},
+                    {name: 'minDamage', type: 'number'},
+                    {name: 'maxDamage', type: 'number'},
                   ],
                 },
               ],
             },
             {
-              name: 'aeather',
+              name: 'aether',
               title: 'Aether',
               type: 'array',
               of: [
                 {
                   type: 'object',
                   fields: [
-                    {name: 'lower', type: 'number'},
-                    {name: 'higher', type: 'number'},
+                    {name: 'minDamage', type: 'number'},
+                    {name: 'maxDamage', type: 'number'},
                   ],
                 },
               ],
             },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'jewelry',
+      title: 'Jewelry',
+      type: 'object',
+      hidden: ({parent}: {parent: {itemType: string[]; subType: string[]}}) =>
+        !(
+          parent?.itemType?.includes('equippable') &&
+          parent?.subType?.some((sub) => sub === 'jewelry')
+        ),
+      fields: [
+        {
+          name: 'jewelryType',
+          title: 'Jewelry Type',
+          type: 'array',
+          of: [{type: 'string'}],
+          options: {
+            layout: 'grid',
+            list: [
+              {title: 'Amulet', value: 'amulet'},
+              {title: 'Ring', value: 'ring'},
+              {title: 'Talisman', value: 'talisman'},
+            ],
+          },
+        },
+        {name: 'slot', title: 'Slot', type: 'string'},
+        {name: 'durability', title: 'Durability', type: 'number'},
+        {
+          name: 'defenses',
+          title: 'Defenses',
+          type: 'object',
+          fields: [
+            {name: 'health', title: 'Health', type: 'number'},
+            {name: 'mana', title: 'Mana', type: 'number'},
+            {name: 'flame', title: 'Flame', type: 'number'},
+            {name: 'frost', title: 'Frost', type: 'number'},
+            {name: 'lightning', title: 'Lightning', type: 'number'},
+            {name: 'entropis', title: 'Entropis', type: 'number'},
+            {name: 'vitalis', title: 'Vitalis', type: 'number'},
+            {name: 'aether', title: 'Aether', type: 'number'},
           ],
         },
       ],
@@ -212,62 +262,116 @@ export default {
       name: 'potion',
       title: 'Potion',
       type: 'object',
-      hidden: ({parent}: {parent: {itemType: string; subType: string}}) =>
-        !(parent?.itemType == 'consumable' && parent?.subType == 'potion'),
+      hidden: ({parent}: {parent: {itemType: string[]; subType: string[]}}) =>
+        !(
+          parent?.itemType?.includes('consumable') &&
+          parent?.subType?.some((sub) => sub === 'potion')
+        ),
       fields: [
         {
           name: 'effectType',
           title: 'Effect Type',
-          type: 'string',
+          type: 'array',
+          of: [{type: 'string'}],
           options: {
-            list: ['restore, buff'],
+            layout: 'grid',
+            list: [
+              {title: 'Buff', value: 'buff'},
+              {title: 'Debuff', value: 'debuff'},
+              {title: 'Restore', value: 'restore'},
+              {title: 'Drain', value: 'drain'},
+            ],
           },
         },
-        // {
-        //   name: 'effectType',
-        //   title: 'Effect Type',
-        //   type: 'array', // Make sure it's an array since you want multiple selections
-        //   of: [{type: 'string'}],
-        //   options: {
-        //     layout: 'grid', // Keeps checkbox layout for multiple selections
-        //     list: [
-        //       {title: 'Buff', value: 'buff'},
-        //       {title: '', value: 'sword'},
-        //       {title: 'Bow', value: 'bow'},
-        //       {title: 'Staff', value: 'Staff'},
-        //       {title: 'Projectile', value: 'projectile'},
-        //       {title: 'Wand', value: 'wand'},
-        //       {title: 'Mace', value: 'mace'},
-        //       {title: 'Battle axe', value: 'battleaxe'},
-        //     ],
-        //   },
-        // },
-        {name: 'affectedStat', title: 'Affected Stat', type: 'string'},
+        {
+          name: 'affectedStat',
+          title: 'Affected Stat',
+          type: 'array',
+          of: [{type: 'string'}],
+          options: {
+            layout: 'grid',
+            list: [
+              {title: 'Strength', value: 'strength'},
+              {title: 'Agility', value: 'agility'},
+              {title: 'Intelligence', value: 'intelligence'},
+              {title: 'Wisdom', value: 'wisdow'},
+              {title: 'Luck', value: 'luck'},
+            ],
+          },
+        },
+        {name: 'effectAmount', title: 'Effect Amount', type: 'number'},
+        {name: 'duration', title: 'Duration', type: 'string'},
+      ],
+    },
+    {
+      name: 'food',
+      title: 'Food',
+      type: 'object',
+      hidden: ({parent}: {parent: {itemType: string[]; subType: string[]}}) =>
+        !(
+          parent?.itemType?.includes('consumable') && parent?.subType?.some((sub) => sub === 'food')
+        ),
+      fields: [
+        {
+          name: 'effectType',
+          title: 'Effect Type',
+          type: 'array',
+          of: [{type: 'string'}],
+          options: {
+            layout: 'grid',
+            list: [
+              {title: 'Buff', value: 'buff'},
+              {title: 'Debuff', value: 'debuff'},
+              {title: 'Restore', value: 'restore'},
+              {title: 'Drain', value: 'drain'},
+            ],
+          },
+        },
+        {
+          name: 'affectedStat',
+          title: 'Affected Stat',
+          type: 'array',
+          of: [{type: 'string'}],
+          options: {
+            layout: 'grid',
+            list: [
+              {title: 'Strength', value: 'strength'},
+              {title: 'Agility', value: 'agility'},
+              {title: 'Intelligence', value: 'intelligence'},
+              {title: 'Wisdom', value: 'wisdow'},
+              {title: 'Luck', value: 'luck'},
+            ],
+          },
+        },
         {name: 'effectAmount', title: 'Effect Amount', type: 'number'},
         {name: 'duration', title: 'Duration', type: 'string'},
       ],
     },
 
     {
-      name: 'crafting',
-      title: 'Crafting',
-      type: 'object',
-      hidden: ({parent}: {parent: {itemType: string}}) => parent?.itemType !== 'crafting',
-      fields: [
+      name: 'recipe',
+      title: 'Recipe',
+      type: 'array',
+      of: [
         {
-          name: 'materialType',
-          title: 'Material Type',
-          type: 'string',
-          options: {
-            list: ['food', 'ingredient', 'material', 'spices'],
-          },
+          type: 'object',
+          fields: [
+            {
+              name: 'ingredient',
+              title: 'Ingredient',
+              type: 'reference',
+              to: [{type: 'item'}],
+            },
+            {name: 'amount', title: 'Amount', type: 'number'},
+          ],
         },
-        // { name: "requiredLevel", title: "Required Level", type: "number" },
       ],
     },
+
     {name: 'buyPrice', title: 'Buy Price', type: 'number'},
     {name: 'sellPrice', title: 'Sell Price', type: 'number'},
   ],
+
   preview: {
     select: {
       title: 'name',
