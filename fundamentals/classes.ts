@@ -1,18 +1,18 @@
 export const characterClasses = [
   //(Aetherblade)
-  {title: 'Warrior', value: 'warrior'},
+  'Warrior',
   //(Veilweaver)
-  {title: 'Mage', value: 'mage'},
+  'Mage',
   //(Riftshroud)
-  {title: 'Rogue', value: 'rogue'},
+  'Rogue',
   // (Aethershield)
-  {title: 'Tank', value: 'tank'},
+  'Tank',
   //(Riftwalker)
-  {title: 'Support', value: 'support'},
+  'Support',
   //(Primordial Charger)
-  {title: 'Barbarian', value: 'barbarian'},
+  'Barbarian',
   // (Riftforger)
-  {title: 'Engineer', value: 'engineer'},
+  'Engineer',
   // (Veilcaller)
-  {title: 'Summoner', value: 'summoner'},
+  'Summoner',
 ]

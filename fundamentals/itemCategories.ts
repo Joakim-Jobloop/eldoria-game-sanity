@@ -1,41 +1,48 @@
-export const itemCategoryList = [
-  {title: 'Equippable', value: 'equippable'},
-  {title: 'Consumable', value: 'consumable'},
-  {title: 'Crafting', value: 'crafting'},
-]
+export const itemCategories = [
+  'Equippable',
+  'Consumable',
+  'Crafting',
+];
 
-export const itemSubCategoryList = [
-  {title: 'Weapon', value: 'weapon'},
-  {title: 'Armour', value: 'armour'},
-  {title: 'Jewelry', value: 'jewelry'},
-  {title: 'Potion', value: 'potion'},
-  {title: 'Food', value: 'food'},
-  {title: 'Ingredient', value: 'ingredient'},
-  {title: 'Material', value: 'material'},
-  {title: 'Spice', value: 'spice'},
-]
+export const itemSubCategories = [
+  'Weapon',
+  'Armour',
+  'Jewelry',
+  'Potion',
+  'Food',
+  'Ingredient',
+  'Material',
+  'Spice',
+];
 
-export const armourClasses = [
-  {title: 'Light', value: 'light'},
-  {title: 'Medium', value: 'medium'},
-  {title: 'Heavy', value: 'heavy'},
-]
+export const armourCategories = [
+  'Light',
+  'Medium',
+  'Heavy',
+];
 
-export const weaponClasses = [
-  {title: 'Dagger', value: 'dagger'},
-  {title: 'Sword', value: 'sword'},
-  {title: 'Bow', value: 'bow'},
-  {title: 'Staff', value: 'Staff'},
-  {title: 'Projectile', value: 'projectile'},
-  {title: 'Wand', value: 'wand'},
-  {title: 'Mace', value: 'mace'},
-  {title: 'Battle axe', value: 'battleaxe'},
-]
+export const weaponCategories = [
+  'Dagger', 
+  'Sword', 
+  'Bow', 
+  'Staff', 
+  'Projectile',
+  'Wand', 
+  'Mace', 
+  'Battle axe',
+];
 
-export const jewelryClasses = [
-  {title: 'Amulet', value: 'amulet'},
-  {title: 'Ring', value: 'ring'},
-  {title: 'Talisman', value: 'talisman'},
-  {title: 'Artifact', value: 'artifact'},
-  {title: 'Bracelet', value: 'bracelet'},
-]
+export const jewelryCategories = [
+  'Amulet',
+  'Ring',
+  'Talisman',
+  'Artifact',
+  'Bracelet',
+];
+
+export const consumableEffects = [
+  'Buff',
+  'Debuff',
+  'Restore',
+  'Drain',
+];

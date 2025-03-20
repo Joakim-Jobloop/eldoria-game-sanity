@@ -1,5 +1,5 @@
 import { characterClasses } from "../fundamentals/classes";
-import { createCheckDropdown } from "../schemaVariables/schemaVariables";
+import { checkDropdown } from "../schemaVariables/schemaVariables";
 
 type ValidationRule = {
     required(): ValidationRule;
@@ -31,7 +31,7 @@ type ValidationRule = {
         validation: (Rule: ValidationRule) =>
           Rule.required().error("Class description is required"),
       },
-      createCheckDropdown("classCategory", "What Character Class Type is this?", characterClasses),
+      checkDropdown("classCategory", "What Character Class Type is this?", characterClasses),
       {
         name: "classType",
         title: "What Character Class Type is this?",
