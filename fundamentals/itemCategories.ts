@@ -31,3 +31,11 @@ export const weaponClasses = [
   {title: 'Mace', value: 'mace'},
   {title: 'Battle axe', value: 'battleaxe'},
 ]
+
+export const jewelryClasses = [
+  {title: 'Amulet', value: 'amulet'},
+  {title: 'Ring', value: 'ring'},
+  {title: 'Talisman', value: 'talisman'},
+  {title: 'Artifact', value: 'artifact'},
+  {title: 'Bracelet', value: 'bracelet'},
+]

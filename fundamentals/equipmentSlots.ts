@@ -14,8 +14,10 @@ export const armorSlotList = [
 ]
 
 export const jewelrySlotList = [
-  {title: 'Amulet', value: 'amulet'},
-  {title: 'Ring', value: 'ring'},
-  {title: 'Talisman', value: 'talisman'},
-  {title: 'Artifact', value: 'artifact'},
+  {title: 'Neck', value: 'neck'},
+  {title: 'Ring slot one', value: 'ringOne'},
+  {title: 'Ring slot two', value: 'ringTwo'},
+  {title: 'Belt slot', value: 'belt'},
+  {title: 'Artifact pouch', value: 'artifactPouch'},
+  {title: 'Wrist', value: 'wrist'},
 ]

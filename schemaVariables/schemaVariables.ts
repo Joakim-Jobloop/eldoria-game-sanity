@@ -46,7 +46,7 @@ export const createCheckDropdown = (name: string, title: string, options: {title
   });
 
 
-  export const createCombatStatDropdown  = () => ({
+  export const createDamageStatField  = () => ({
     name: "damage",
   title: "Set the damage for the weapon",
   type: "object",
@@ -65,4 +65,18 @@ export const createCheckDropdown = (name: string, title: string, options: {title
     ],
   })),
   validation: (Rule: ValidationRule) => Rule.required().error("Weapon must have at least one damage type"),
+});
+
+
+export const createDefensiveStatsField = () => ({
+  name: "defenses",
+  title: "Set the defenses for the item",
+  type: "object",
+  fields: combatStats.map((stat) => ({
+    name: stat.title.toLowerCase(),
+    title: stat.title,
+    type: "number",
+  })),
+  validation: (Rule: ValidationRule) =>
+    Rule.required().error("Item must have at least one defense value"),
 });

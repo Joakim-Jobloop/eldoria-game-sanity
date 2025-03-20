@@ -6,9 +6,6 @@ export const primaryStats = [
     {title: 'Intelligence', value: 'intelligence'},
     {title: 'Wisdom', value: 'wisdom'},
     {title: 'Luck', value: 'luck'},
-    {title: 'Health', value: 'health'},
-    {title: 'Mana', value: 'mana'},
-    {title: 'Aether', value: 'aether'},
   ]
 
   export const secondaryStats = [
@@ -28,3 +25,6 @@ export const primaryStats = [
     { title: "Accuracy", value: "accuracy" },
     { title: "Evasion", value: "evasion" },
   ];
+
+
+  export const allStats = [...primaryStats, ...secondaryStats, ...tertiaryStats]

@@ -6,4 +6,6 @@ export const combatStats = [
     {title: 'Entropis', type: 'number'},
     {title: 'Vitalis', type: 'number'},
     {title: 'Aether', type: 'number'},
+    {title: 'Health', type: 'number'},
+    {title: 'Mana', type: 'number'},
   ]

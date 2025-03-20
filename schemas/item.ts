@@ -1,7 +1,7 @@
 import {combatStats} from '../fundamentals/combat'
-import {armorSlotList} from '../fundamentals/equipmentSlots'
-import {armourClasses, itemCategoryList, itemSubCategoryList, weaponClasses} from '../fundamentals/itemCategories'
-import {createCheckDropdown, createCombatStatDropdown, createNumberDropdown} from '../schemaVariables/itemVariables'
+import {armorSlotList, jewelrySlotList} from '../fundamentals/equipmentSlots'
+import {armourClasses, itemCategoryList, itemSubCategoryList, jewelryClasses, weaponClasses} from '../fundamentals/itemCategories'
+import {createCheckDropdown, createDamageStatField, createDefensiveStatsField, createNumberDropdown} from '../schemaVariables/schemaVariables'
 import {MinMaxRule, ValidationRule} from '../types/types'
 
 
@@ -47,7 +47,9 @@ export default {
       hidden: ({parent}: {parent: {itemType: string[]; subType: string[]}}) =>
         !(parent?.itemType?.includes('equippable') && parent?.subType?.includes('armour')),
       fields: [
+        //TODO: Check if you can choose multiple armour classes with the createCheckDropdown
         createCheckDropdown('armourClass', 'What armour-class is it?', armourClasses),
+        //TODO: Same here as above
         createCheckDropdown(
           'slot',
           'Where on the body do you want to be able to equip it?',
@@ -80,22 +82,22 @@ export default {
           'In which hand do you want to be able to equip it?',
           armorSlotList,
         ),
-        {
-          name: 'slot',
-          title: 'In which hand do you want to be able to equip it?',
-          type: 'array',
-          of: [{type: 'string'}],
-          options: {
-            layout: 'grid',
-            list: [
-              {title: 'Main Hand', value: 'mainHand'},
-              {title: 'Off Hand', value: 'offHand'},
-              {title: 'Two Handed', value: 'twoHanded'},
-            ],
-            validation: (Rule: ValidationRule) =>
-              Rule.required().error('Weapon must have a subtype'),
-          },
-        },
+        // {
+        //   name: 'slot',
+        //   title: 'In which hand do you want to be able to equip it?',
+        //   type: 'array',
+        //   of: [{type: 'string'}],
+        //   options: {
+        //     layout: 'grid',
+        //     list: [
+        //       {title: 'Main Hand', value: 'mainHand'},
+        //       {title: 'Off Hand', value: 'offHand'},
+        //       {title: 'Two Handed', value: 'twoHanded'},
+        //     ],
+        //     validation: (Rule: ValidationRule) =>
+        //       Rule.required().error('Weapon must have a subtype'),
+        //   },
+        // },
         {
           name: 'durability',
           title: 'How durable should it be?',
@@ -103,7 +105,7 @@ export default {
           validation: (Rule: MinMaxRule) =>
             Rule.min(1).max(999).error('Durability must be between 1 and 100'),
         },
-        createCombatStatDropdown(),
+        createDamageStatField(),
       ],
     },
     {
@@ -116,35 +118,42 @@ export default {
           parent?.subType?.some((sub) => sub === 'jewelry')
         ),
       fields: [
-        {
-          name: 'jewelryType',
-          title: 'What type of jewelry is this?',
-          type: 'array',
-          of: [{type: 'string'}],
-          options: {
-            layout: 'grid',
-            list: [
-              {title: 'Amulet', value: 'amulet'},
-              {title: 'Ring', value: 'ring'},
-              {title: 'Talisman', value: 'talisman'},
-            ],
-          },
-          validation: (Rule: ValidationRule) => Rule.required().error('Jewlery must have a type'),
-        },
-        {
-          name: 'slot',
-          title: 'Where on the body do you want to be able to equip it?',
-          type: 'array',
-          of: [{type: 'string'}],
-          options: {
-            layout: 'grid',
-            list: [
-              {title: 'Neck', value: 'neck'},
-              {title: 'Ring 1', value: 'ring1'},
-              {title: 'Ring 2', value: 'ring2'},
-            ],
-          },
-        },
+        createCheckDropdown('jewelryCategory', 'What type of jewelry is this?', jewelryClasses),
+
+        // {
+        //   name: 'jewelryType',
+        //   title: 'What type of jewelry is this?',
+        //   type: 'array',
+        //   of: [{type: 'string'}],
+        //   options: {
+        //     layout: 'grid',
+        //     list: [
+        //       {title: 'Amulet', value: 'amulet'},
+        //       {title: 'Ring', value: 'ring'},
+        //       {title: 'Talisman', value: 'talisman'},
+        //     ],
+        //   },
+        //   validation: (Rule: ValidationRule) => Rule.required().error('Jewlery must have a type'),
+        // },
+        createCheckDropdown(
+          'slot',
+          'Where on the body do you want to be able to equip it?',
+          jewelrySlotList,
+        ),
+        // {
+        //   name: 'slot',
+        //   title: 'Where on the body do you want to be able to equip it?',
+        //   type: 'array',
+        //   of: [{type: 'string'}],
+        //   options: {
+        //     layout: 'grid',
+        //     list: [
+        //       {title: 'Neck', value: 'neck'},
+        //       {title: 'Ring 1', value: 'ring1'},
+        //       {title: 'Ring 2', value: 'ring2'},
+        //     ],
+        //   },
+        // },
         {
           name: 'durability',
           title: 'How durable should it be?',
@@ -152,21 +161,22 @@ export default {
           validation: (Rule: MinMaxRule) =>
             Rule.min(1).max(999).error('Durability must be between 1 and 999'),
         },
-        {
-          name: 'defenses',
-          title: 'Define the jewelry effect on your stats',
-          type: 'object',
-          fields: [
-            {name: 'health', title: 'Health', type: 'number'},
-            {name: 'mana', title: 'Mana', type: 'number'},
-            {name: 'flame', title: 'Flame', type: 'number'},
-            {name: 'frost', title: 'Frost', type: 'number'},
-            {name: 'lightning', title: 'Lightning', type: 'number'},
-            {name: 'entropis', title: 'Entropis', type: 'number'},
-            {name: 'vitalis', title: 'Vitalis', type: 'number'},
-            {name: 'aether', title: 'Aether', type: 'number'},
-          ],
-        },
+        createDefensiveStatsField(),
+        // {
+        //   name: 'defenses',
+        //   title: 'Define the jewelry effect on your stats',
+        //   type: 'object',
+        //   fields: [
+          //     {name: 'flame', title: 'Flame', type: 'number'},
+          //     {name: 'frost', title: 'Frost', type: 'number'},
+          //     {name: 'lightning', title: 'Lightning', type: 'number'},
+          //     {name: 'entropis', title: 'Entropis', type: 'number'},
+          //     {name: 'vitalis', title: 'Vitalis', type: 'number'},
+          //     {name: 'aether', title: 'Aether', type: 'number'},
+          //     {name: 'health', title: 'Health', type: 'number'},
+          //     {name: 'mana', title: 'Mana', type: 'number'},
+        //   ],
+        // },
       ],
     },
 
@@ -286,8 +296,8 @@ export default {
       ],
     },
 
-    {name: 'buyPrice', title: 'Buy Price', type: 'number'},
-    {name: 'sellPrice', title: 'Sell Price', type: 'number'},
+    {name: 'buyPrice', title: 'Set a buy price', type: 'number'},
+    {name: 'sellPrice', title: 'Set a sell price', type: 'number'},
   ],
 
   //! causes typescript errors in sanity.config.ts
