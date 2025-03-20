@@ -1,4 +1,3 @@
-
 export const primaryStats = [
     {title: 'Strength', value: 'strength'},
     {title: 'Agility', value: 'agility'},
