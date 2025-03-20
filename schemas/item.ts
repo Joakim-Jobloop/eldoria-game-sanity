@@ -1,32 +1,11 @@
-type Preview = {
-  title: string
-  subtitle: string
-  media: string | undefined
-}
+import {combatStats} from '../fundamentals/combat'
+import {armorSlotList} from '../fundamentals/equipmentSlots'
+import {armourClasses, itemCategoryList, itemSubCategoryList, weaponClasses} from '../fundamentals/itemCategories'
+import {createCheckDropdown, createCombatStatDropdown, createNumberDropdown} from '../schemaVariables/itemVariables'
+import {MinMaxRule, ValidationRule} from '../types/types'
 
-type MinMaxRule = {
-  min(minValue: number): MinMaxRule
-  max(maxValue: number): MinMaxRule
-  error(errorMessage: string): MinMaxRule
-}
 
-type AttributeRules = {
-  min(minValue: number): MinMaxRule
-  error(errorMessage: string): MinMaxRule
-}
-
-type ValidationRule = {
-  required(): ValidationRule
-  error(message: string): ValidationRule
-}
-
-// function attributeRules() {
-//   return {
-//     validation: (Rule: AttributeRules) =>
-//       Rule.min(1).max(10).error("Strength must be between 1 and 10")
-//   }
-// }
-
+//TODO: Implement the rest of the schema variables to shorten down the schema even more
 export default {
   name: 'item',
   title: 'Create an Item!',
@@ -36,16 +15,15 @@ export default {
       name: 'name',
       title: 'Name the item',
       type: 'string',
+      maxLength: 96,
       validation: (Rule: ValidationRule) => Rule.required().error('Item must have a name'),
     },
     {
       // hidden: true,
       name: 'itemID',
       type: 'slug',
-      options: {
-        source: 'name',
-        maxLength: 96,
-      },
+      source: 'name',
+      maxLength: 96,
       validation: (Rule: ValidationRule) => Rule.required().error('Item must have an id'),
     },
     {
@@ -55,88 +33,27 @@ export default {
       options: {hotspot: true},
       validation: (Rule: ValidationRule) => Rule.required().error('Item must have a picture'),
     },
-    {
-      name: 'itemType',
-      title: 'What type of item is it?',
-      type: 'array',
-      of: [{type: 'string'}],
-      options: {
-        list: [
-          {title: 'Equippable', value: 'equippable'},
-          {title: 'Consumable', value: 'consumable'},
-          {title: 'Crafting', value: 'crafting'},
-        ],
-        layout: 'grid',
-      },
-      validation: (Rule: ValidationRule) => Rule.required().error('Item must have a type'),
-    },
-    {
-      name: 'subType',
-      title: 'What is the subtype of the item you are creating?',
-      type: 'array',
-      of: [{type: 'string'}],
-      options: {
-        layout: 'grid',
-        list: [
-          {title: 'Weapon', value: 'weapon'},
-          {title: 'Armour', value: 'armour'},
-          {title: 'Jewelry', value: 'jewelry'},
-          {title: 'Potion', value: 'potion'},
-          {title: 'Food', value: 'food'},
-          {title: 'Ingredient', value: 'ingredient'},
-          {title: 'Material', value: 'material'},
-          {title: 'Spice', value: 'spice'},
-        ],
-      },
-      validation: (Rule: ValidationRule) => Rule.required().error('Item must have a subtype'),
-    },
+    createCheckDropdown('category', 'What type of item is it?', itemCategoryList),
+    createCheckDropdown(
+      'subCategory',
+      'What be more spesific. What type of item is it?Does it fit into just one or several categories?',
+      itemSubCategoryList,
+    ),
 
-    // ✅ Show only if itemType is "equippable and armour"
     {
       name: 'armour',
       title: 'Some armour ey? How does it defend the player?',
       type: 'object',
       hidden: ({parent}: {parent: {itemType: string[]; subType: string[]}}) =>
-        !(
-          parent?.itemType?.includes('equippable') &&
-          parent?.subType?.some((sub) => sub === 'armour')
-        ),
+        !(parent?.itemType?.includes('equippable') && parent?.subType?.includes('armour')),
       fields: [
-        {
-          name: 'armourType',
-          title: 'What armour-class is it?',
-          type: 'array',
-          of: [{type: 'string'}],
-          options: {
-            layout: 'grid',
-            list: [
-              {title: 'Heavy', value: 'heavy'},
-              {title: 'Medium', value: 'medium'},
-              {title: 'Light', value: 'light'},
-            ],
-          },
-          validation: (Rule: ValidationRule) =>
-            Rule.required().error('Armour must have a armour-class'),
-        },
-        {
-          name: 'slot',
-          title: 'Where on the body do you want to be able to equip it?',
-          type: 'array',
-          of: [{type: 'string'}],
-          options: {
-            layout: 'grid',
-            list: [
-              {title: 'Head', value: 'head'},
-              {title: 'Chest', value: 'chest'},
-              {title: 'Hands', value: 'hands'},
-              {title: 'Legs', value: 'legs'},
-              {title: 'Feet', value: 'feet'},
-              {title: 'Pauldron', value: 'pauldron'},
-            ],
-          },
-          validation: (Rule: ValidationRule) =>
-            Rule.required().error('Armour must have a equipment slot'),
-        },
+        createCheckDropdown('armourClass', 'What armour-class is it?', armourClasses),
+        createCheckDropdown(
+          'slot',
+          'Where on the body do you want to be able to equip it?',
+          armorSlotList,
+        ),
+
         {
           name: 'durability',
           title: 'How durable should it be?',
@@ -144,21 +61,7 @@ export default {
           validation: (Rule: MinMaxRule) =>
             Rule.min(1).max(999).error('Durability must be between 1 and 100'),
         },
-        {
-          name: 'defenses',
-          title: 'Define the armour defenses',
-          type: 'object',
-          fields: [
-            {name: 'flame', title: 'Flame', type: 'number'},
-            {name: 'frost', title: 'Frost', type: 'number'},
-            {name: 'lightning', title: 'Lightning', type: 'number'},
-            {name: 'entropis', title: 'Entropis', type: 'number'},
-            {name: 'vitalis', title: 'Vitalis', type: 'number'},
-            {name: 'aether', title: 'Aether', type: 'number'},
-          ],
-          validation: (Rule: ValidationRule) =>
-            Rule.required().error('Armour must have a at least one defense'),
-        },
+        createNumberDropdown('defenses', 'Define the armour defenses', combatStats),
       ],
     },
     {
@@ -171,26 +74,12 @@ export default {
           parent?.subType?.some((sub) => sub === 'weapon')
         ),
       fields: [
-        {
-          name: 'weaponType',
-          title: 'What type of weapon is it?',
-          type: 'array',
-          of: [{type: 'string'}],
-          options: {
-            layout: 'grid',
-            list: [
-              {title: 'Dagger', value: 'dagger'},
-              {title: 'Sword', value: 'sword'},
-              {title: 'Bow', value: 'bow'},
-              {title: 'Staff', value: 'Staff'},
-              {title: 'Projectile', value: 'projectile'},
-              {title: 'Wand', value: 'wand'},
-              {title: 'Mace', value: 'mace'},
-              {title: 'Battle axe', value: 'battleaxe'},
-            ],
-            validation: (Rule: ValidationRule) => Rule.required().error('Weapon must have a type'),
-          },
-        },
+        createCheckDropdown('weaponClass', 'What type of weapon is it?', weaponClasses),
+        createCheckDropdown(
+          'slot',
+          'In which hand do you want to be able to equip it?',
+          armorSlotList,
+        ),
         {
           name: 'slot',
           title: 'In which hand do you want to be able to equip it?',
@@ -214,99 +103,7 @@ export default {
           validation: (Rule: MinMaxRule) =>
             Rule.min(1).max(999).error('Durability must be between 1 and 100'),
         },
-        {
-          name: 'damage',
-          title: 'Set the damage for the weapon',
-          type: 'object',
-          fields: [
-            {
-              name: 'flame',
-              title: 'Flame',
-              type: 'array',
-              of: [
-                {
-                  type: 'object',
-                  fields: [
-                    {name: 'minDamage', type: 'number'},
-                    {name: 'maxDamage', type: 'number'},
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'frost',
-              title: 'Frost',
-              type: 'array',
-              of: [
-                {
-                  type: 'object',
-                  fields: [
-                    {name: 'minDamage', type: 'number'},
-                    {name: 'maxDamage', type: 'number'},
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'lightning',
-              title: 'Lightning',
-              type: 'array',
-              of: [
-                {
-                  type: 'object',
-                  fields: [
-                    {name: 'minDamage', type: 'number'},
-                    {name: 'maxDamage', type: 'number'},
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'entropis',
-              title: 'Entropis',
-              type: 'array',
-              of: [
-                {
-                  type: 'object',
-                  fields: [
-                    {name: 'minDamage', type: 'number'},
-                    {name: 'maxDamage', type: 'number'},
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'vitalis',
-              title: 'Vitalis',
-              type: 'array',
-              of: [
-                {
-                  type: 'object',
-                  fields: [
-                    {name: 'minDamage', type: 'number'},
-                    {name: 'maxDamage', type: 'number'},
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'aether',
-              title: 'Aether',
-              type: 'array',
-              of: [
-                {
-                  type: 'object',
-                  fields: [
-                    {name: 'minDamage', type: 'number'},
-                    {name: 'maxDamage', type: 'number'},
-                  ],
-                },
-              ],
-            },
-          ],
-          validation: (Rule: ValidationRule) =>
-            Rule.required().error('Weapon must have atleast one damage type'),
-        },
+        createCombatStatDropdown(),
       ],
     },
     {
