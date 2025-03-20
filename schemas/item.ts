@@ -46,6 +46,7 @@ export default {
         source: 'name',
         maxLength: 96,
       },
+      validation: (Rule: ValidationRule) => Rule.required().error('Item must have an id'),
     },
     {
       name: 'src',
@@ -205,7 +206,6 @@ export default {
             validation: (Rule: ValidationRule) =>
               Rule.required().error('Weapon must have a subtype'),
           },
-
         },
         {
           name: 'durability',
@@ -491,12 +491,8 @@ export default {
 
     {name: 'buyPrice', title: 'Buy Price', type: 'number'},
     {name: 'sellPrice', title: 'Sell Price', type: 'number'},
-  
-
   ],
 
-
-  
   //! causes typescript errors in sanity.config.ts
   // preview: {
   //   select: {
