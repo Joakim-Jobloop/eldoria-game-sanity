@@ -6,6 +6,7 @@ type ValidationRule = {
     error(message: string): ValidationRule;
   };
   
+  // used minMaxRule in the types.ts instead (since that is used already and is the same)
   type AttributeRules = {
     min(value: number): AttributeRules;
     max(value: number): AttributeRules;
