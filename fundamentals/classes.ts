@@ -1,18 +1,18 @@
 export const characterClasses = [
-  //(Aetherblade)
+  //(Aetherblade):
   'Warrior',
-  //(Veilweaver)
+  //(Veilweaver):
   'Mage',
-  //(Riftshroud)
+  //(Riftshroud):
   'Rogue',
-  // (Aethershield)
-  'Tank',
-  //(Riftwalker)
+  // (Aethershield):
+  'Defender',
+  //(Riftwalker):
   'Support',
-  //(Primordial Charger)
+  //(Primordial Charger):
   'Barbarian',
-  // (Riftforger)
+  // (Riftforger):
   'Engineer',
-  // (Veilcaller)
+  // (Veilcaller):
   'Summoner',
 ]
