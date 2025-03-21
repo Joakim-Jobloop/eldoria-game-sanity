@@ -1,17 +1,7 @@
 import {primaryStats} from '../fundamentals/attributes'
 import {characterClasses} from '../fundamentals/classes'
 import {checkDropdown} from '../schemaVariables/schemaVariables'
-
-export type ValidationRule = {
-  required(): ValidationRule
-  error(message: string): ValidationRule
-}
-
-export type AttributeRules = {
-  min(minValue: number): AttributeRules
-  max(maxValue: number): AttributeRules
-  error(errorMessage: string): AttributeRules
-}
+import {AttributeRules, ValidationRule} from '../types/types'
 
 export default {
   name: 'characterClass',
@@ -24,7 +14,7 @@ export default {
       type: 'text',
       validation: (Rule: ValidationRule) => Rule.required().error('Class description is required'),
     },
-    createCheckDropdown('classCategory', 'What Character Class Type is this?', characterClasses),
+    checkDropdown('classCategory', 'What Character Class Type is this?', characterClasses),
     {
       name: 'subClass',
       title: 'Sub-Class',
@@ -35,12 +25,14 @@ export default {
       name: 'starterAttributes',
       title: 'Starter Attributes',
       type: 'object',
-      fields: primaryStats.map((attr) => ({
-        name: attr.value,
-        title: attr.title,
+      fieldsets: [{name: 'defenseStats', title: 'Defense Stats', options: {columns: 3}}],
+      fields: primaryStats.map((stat) => ({
+        name: stat.toLowerCase().replace(/\s+/g, '_'), // Fix invalid field names
+        title: stat,
         type: 'number',
+        fieldset: 'defenseStats',
         validation: (Rule: AttributeRules) =>
-          Rule.min(1).max(10).error(`${attr.title} must be between 1 and 10`),
+          Rule.min(1).max(10).error(`${stat} must be between 1 and 10`),
       })),
     },
   ],
