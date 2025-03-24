@@ -1,3 +1,4 @@
+import { validation } from 'sanity'
 import {allDamageTypes, elementalTypes} from '../fundamentals/attributes'
 import {MinMaxRule, ValidationRule} from '../types/types'
 
@@ -22,20 +23,52 @@ export const numberDropdown = (
   validation: (Rule: ValidationRule) => Rule.required().error(`${title} must be selected`),
 })
 
-export const checkDropdown = (name: string, title: string, options: string[]) => ({
-  name,
-  title,
-  type: 'array',
-  of: [{type: 'string'}],
-  options: {
-    layout: 'grid',
-    list: options.map((option) => ({
-      title: option,
-      value: option.toLowerCase().replace(/\s+/g, '_'), // Consistent formatting
-    })),
-  },
-  validation: (Rule: ValidationRule) => Rule.required().error(`One must be selected`),
-})
+//*THE NEW  checkDropdown rule
+type StringOption = string;
+type ObjectOption = { title: string; value: string };
+
+export const checkDropdown = (
+  name: string,
+  title: string,
+  options: StringOption[] | ObjectOption[]
+) => {
+  const isStringArray = typeof options[0] === "string";
+
+  return {
+    name,
+    title,
+    type: "array",
+    of: [{ type: "string" }],
+    options: {
+      layout: "grid",
+      list: isStringArray
+        ? (options as StringOption[]).map((option) => ({
+            title: option,
+            value: option.toLowerCase().replace(/\s+/g, "_"),
+          }))
+        : options,
+    },
+    validation: (Rule: ValidationRule) =>
+      Rule.required().error(`One must be selected`),
+  };
+};
+
+
+//*  THE OLD RULE 
+// export const checkDropdown = (name: string, title: string, options: string[]) => ({
+//   name,
+//   title,
+//   type: 'array',
+//   of: [{type: 'string'}],
+//   options: {
+//     layout: 'grid',
+//     list: options.map((option) => ({
+//       title: option,
+//       value: option.toLowerCase().replace(/\s+/g, '_'), // Consistent formatting
+//     })),
+//   },
+//   validation: (Rule: ValidationRule) => Rule.required().error(`One must be selected`),
+// })
 
 export const offensiveStats = () => ({
   name: 'damage',
@@ -81,3 +114,27 @@ export const defensiveStats = () => ({
   validation: (Rule: ValidationRule) =>
     Rule.required().error('Item must have at least one defense value'),
 })
+
+
+//*THE NEW RULE ADDED FOR the races but can potentially be used for more 
+export const createRadioDropdown = (
+  name:string,
+  title:string,
+  options: {title:string; value:string}[]
+) => ({
+  name,
+  title,
+  type:"string",
+  options: {
+    layout:"radio",
+    list: options,
+  },
+  validation: (Rule:any) =>
+    Rule.required()
+      .custom((value: any) => {
+        if (!value) return "You must select one of the races!";
+        if (typeof value != "string") return "Invalid selection";
+        return true;
+      })
+      .error("You must select exactly one of the provided options!")
+});
