@@ -132,7 +132,7 @@ export const createRadioDropdown = (
   validation: (Rule:any) =>
     Rule.required()
       .custom((value: any) => {
-        if (!value) return "You must select one of the races!";
+        if (!value) return "You must select one of the options!";
         if (typeof value != "string") return "Invalid selection";
         return true;
       })
