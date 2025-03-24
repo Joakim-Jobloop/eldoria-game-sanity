@@ -23,7 +23,7 @@ export default {
         Rule.required().error('Sub-race name is required'),
     },
     createRadioDropdown("race", "Select Character Race", characterRaces),
-    //* This is where the magic happens
+    //* This is where the magic happens :)
     {
       name: "genderList",
       title: "Gender",
