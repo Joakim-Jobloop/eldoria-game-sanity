@@ -1,4 +1,4 @@
-import {allStats} from '../fundamentals/attributes'
+import {allStats, groupedAllStats} from '../fundamentals/attributes'
 import {armorSlots, jewelrySlots, weaponSlots} from '../fundamentals/equipmentSlots'
 import {
   armourCategories,
@@ -103,9 +103,25 @@ export default {
           'What type of effect does this potion give?',
           consumableEffects,
         ),
-        checkDropdown('affectedStat', 'What stats does this affect?', allStats),
-        {name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number'},
-        {name: 'duration', title: 'How long does it last?', type: 'string'},
+        //*The new version
+        {
+          name: 'affectedStat',
+          title: 'What stat(s) does this affect?',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: {
+            layout: 'grid',
+            list: groupedAllStats,
+          },
+        },                
+        { name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number' },
+        { name: 'duration', title: 'How long does it last?', type: 'string' },
+
+
+        //*The old version
+        // checkDropdown('affectedStat', 'What stats does this affect?', allStats),
+        // {name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number'},
+        // {name: 'duration', title: 'How long does it last?', type: 'string'},
       ],
     },
     {
