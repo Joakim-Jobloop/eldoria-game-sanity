@@ -1,7 +1,7 @@
 export const itemCategories = [
   'Equippable',
   'Consumable',
-  'Crafting',
+  'Craftable',
 ];
 
 export const itemSubCategories = [
@@ -45,4 +45,7 @@ export const consumableEffects = [
   'Debuff',
   'Restore',
   'Drain',
+  'Acquire',
+  'Cure',
+  'Resistance',
 ];

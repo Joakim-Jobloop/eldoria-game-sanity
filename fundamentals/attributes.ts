@@ -1,4 +1,4 @@
-export const primaryStats = ['Strength', 'Agility', 'Vitality', 'Intelligence', 'Wisdom', 'Luck']
+export const primaryStats = ['Strength', 'Agility', 'Vitality', 'Intelligence', 'Wisdom', 'Luck', 'Charm']
 
 export const secondaryStats = [
   'Health',
@@ -8,7 +8,10 @@ export const secondaryStats = [
   'Attack Power',
   'Defense',
   'Dodge Chance',
-  'Aether Attack Power', // aka magic attack power
+  'Aether Attack Power',
+  'Stealth', 
+  'Night Visiol',
+  
 ]
 
 export const physicalTypes = ['Slashing', 'Piercing', 'Blunt']
