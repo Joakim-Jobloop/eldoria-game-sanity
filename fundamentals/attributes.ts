@@ -1,4 +1,12 @@
-export const primaryStats = ['Strength', 'Agility', 'Vitality', 'Intelligence', 'Wisdom', 'Luck', 'Charm']
+export const primaryStats = [
+  'Strength',
+  'Agility',
+  'Vitality',
+  'Intelligence',
+  'Wisdom',
+  'Luck',
+  'Charm',
+]
 
 export const secondaryStats = [
   'Health',
@@ -9,10 +17,13 @@ export const secondaryStats = [
   'Defense',
   'Dodge Chance',
   'Aether Attack Power',
-  'Stealth', 
-  'Night Visiol',
-  
+  // 'Stealth',
+  // 'Night Vision',
 ]
+
+export const tertiaryStats = ['Critical Chance', 'Critical Damage', 'Accuracy', 'Evasion']
+
+export const conditions = ['Night Vision', 'Stealth']
 
 export const physicalTypes = ['Slashing', 'Piercing', 'Blunt']
 
@@ -25,10 +36,8 @@ export const elementalTypes = [
   'Aether', // aka pure magic
 ]
 
-export const tertiaryStats = ['Critical Chance', 'Critical Damage', 'Accuracy', 'Evasion']
-
 export const allStats = Array.from(
-  new Set([...primaryStats, ...secondaryStats, ...tertiaryStats, ...elementalTypes]),
+  new Set([...primaryStats, ...secondaryStats, ...tertiaryStats, ...elementalTypes, ...conditions]),
 )
 
 export const allDamageTypes = [...physicalTypes, ...elementalTypes]

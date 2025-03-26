@@ -1,8 +1,4 @@
-export const itemCategories = [
-  'Equippable',
-  'Consumable',
-  'Craftable',
-];
+export const itemCategories = ['Equippable', 'Consumable', 'Craftable']
 
 export const itemSubCategories = [
   'Weapon',
@@ -13,39 +9,29 @@ export const itemSubCategories = [
   'Ingredient',
   'Material',
   'Spice',
-];
+]
 
-export const armourCategories = [
-  'Light',
-  'Medium',
-  'Heavy',
-];
+export const armourCategories = ['Light', 'Medium', 'Heavy']
 
 export const weaponCategories = [
-  'Dagger', 
-  'Sword', 
-  'Bow', 
-  'Staff', 
+  'Dagger',
+  'Sword',
+  'Bow',
+  'Staff',
   'Projectile',
-  'Wand', 
-  'Mace', 
+  'Wand',
+  'Mace',
   'Battle axe',
-];
+]
 
-export const jewelryCategories = [
-  'Amulet',
-  'Ring',
-  'Talisman',
-  'Artifact',
-  'Bracelet',
-];
+export const jewelryCategories = ['Amulet', 'Ring', 'Talisman', 'Artifact', 'Bracelet']
 
 export const consumableEffects = [
-  'Buff',
-  'Debuff',
-  'Restore',
-  'Drain',
-  'Acquire',
-  'Cure',
-  'Resistance',
-];
+  'Buff', // Gains a temporary stat boost
+  'Debuff', // Gains a temporary stat debuff
+  'Restore', // Restores a stat
+  'Drain', // Drains a stat
+  'Acquire', // Gains a permanent stat boost
+  'Cure', // Cures a permanent or temporary stat debuff
+  'Resistance', // ???
+]
