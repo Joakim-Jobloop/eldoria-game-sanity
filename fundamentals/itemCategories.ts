@@ -1,8 +1,4 @@
-export const itemCategories = [
-  'Equippable',
-  'Consumable',
-  'Crafting',
-];
+export const itemCategories = ['Equippable', 'Consumable', 'Craftable']
 
 export const itemSubCategories = [
   'Weapon',
@@ -13,36 +9,49 @@ export const itemSubCategories = [
   'Ingredient',
   'Material',
   'Spice',
-];
+]
 
-export const armourCategories = [
-  'Light',
-  'Medium',
-  'Heavy',
-];
+export const armourCategories = ['Light', 'Medium', 'Heavy']
 
 export const weaponCategories = [
-  'Dagger', 
-  'Sword', 
-  'Bow', 
-  'Staff', 
+  'Dagger',
+  'Sword',
+  'Bow',
+  'Staff',
   'Projectile',
-  'Wand', 
-  'Mace', 
+  'Wand',
+  'Mace',
   'Battle axe',
-];
+]
 
-export const jewelryCategories = [
-  'Amulet',
-  'Ring',
-  'Talisman',
-  'Artifact',
-  'Bracelet',
-];
+export const jewelryCategories = ['Amulet', 'Ring', 'Talisman', 'Artifact', 'Bracelet']
 
 export const consumableEffects = [
-  'Buff',
-  'Debuff',
-  'Restore',
-  'Drain',
-];
+  //*Original Version
+  'Buff', // Gains a temporary stat boost
+  'Debuff', // Gains a temporary stat debuff
+  'Restore', // Restores a stat
+  'Drain', // Drains a stat
+  'Acquire', // Gains a permanent or temporary stat boost
+  'Cure', // Cures a permanent or temporary stat debuff
+  'Resistance', // ???
+
+  //*First Version
+  // 'Buff', //? All positive temp or perma effect (including restoration/acquire)
+  // 'Debuff', //? All negative temp or perma effects (including drain)
+  // 'Heal', //? Restoration of stats like, health, mana
+  // 'Cure', //? Removing negative condition like, poison, charms, curses
+  // 'Resist', //? Temporarly gives resist to effect such as (elemental, debuffs, etc)
+
+  //*Second Version
+  // 'Buff',
+  // 'Debuff',
+  // 'Heal',
+  // 'Damage',
+  // 'Drain',
+  // 'Cure',
+  // 'Shield',
+  // 'Resistance',
+  // 'Reflect',
+  // 'Immunity',
+]

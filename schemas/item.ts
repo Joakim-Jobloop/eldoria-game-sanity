@@ -1,4 +1,4 @@
-import {allStats} from '../fundamentals/attributes'
+import {allStats, groupedAllStats} from '../fundamentals/attributes'
 import {armorSlots, jewelrySlots, weaponSlots} from '../fundamentals/equipmentSlots'
 import {
   armourCategories,
@@ -103,9 +103,25 @@ export default {
           'What type of effect does this potion give?',
           consumableEffects,
         ),
-        numberDropdown('affectedStat', 'What stats does this affect?', allStats),
-        {name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number'},
-        {name: 'duration', title: 'How long does it last?', type: 'string'},
+        //*The new version
+        {
+          name: 'affectedStat',
+          title: 'What stat(s) does this affect?',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: {
+            layout: 'grid',
+            list: groupedAllStats,
+          },
+        },                
+        { name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number' },
+        { name: 'duration', title: 'How long does it last?', type: 'string' },
+
+
+        //*The old version
+        // checkDropdown('affectedStat', 'What stats does this affect?', allStats),
+        // {name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number'},
+        // {name: 'duration', title: 'How long does it last?', type: 'string'},
       ],
     },
     {
@@ -133,12 +149,36 @@ export default {
         {
           type: 'object',
           fields: [
-            {name: 'ingredient', title: 'Ingredient', type: 'reference', to: [{type: 'item'}]},
-            {name: 'amount', title: 'Amount', type: 'number'},
+            {
+              name: 'ingredient',
+              title: 'Ingredient',
+              type: 'reference',
+              to: [{ type: 'item' }],
+            },
+            {
+              name: 'amount',
+              title: 'Amount',
+              type: 'number',
+            },
           ],
+          preview: {
+            select: {
+              title: 'ingredient.name',
+              subtitle: 'amount',
+              media: 'ingredient.src', //*assumes your image field in item.ts is named 'src'
+            },
+            prepare({ title, subtitle, media }: {title:string; subtitle:string; media:any}) {
+              return {
+                title,
+                subtitle: `Amount: ${subtitle}`,
+                media,
+              };
+            },
+          },
         },
       ],
     },
+    
     {
       name: 'durability',
       title: 'How durable should it be?',
