@@ -1,10 +1,10 @@
 export default {
-  name: 'chatracter',
+  name: 'character', // fixed typo
   title: 'Character',
   type: 'document',
   fields: [
     {
-      name: 'plyayerInventor',
+      name: 'playerInventory', // fixed typo
       title: 'Player Inventory',
       type: 'object',
       fields: [
@@ -13,23 +13,35 @@ export default {
           title: 'Currency',
           type: 'object',
           fields: [
-            {name: 'gold', title: 'Gold', type: 'number'},
-            {name: 'gems', title: 'Gems', type: 'number'},
+            { name: 'gold', title: 'Gold', type: 'number' },
+            { name: 'gems', title: 'Gems', type: 'number' },
           ],
         },
         {
           name: 'items',
           title: 'Items',
           type: 'array',
-          of: [{type: 'reference', to: [{type: 'item'}]}],
+          of: [{ type: 'reference', to: [{ type: 'item' }] }],
         },
         {
-          name: 'starterweapon',
+          name: 'weapon',
           title: 'Starter Weapon',
-          type: 'reference',
-          to: [{type: 'item'}],
+          type: 'reference', // changed from array to single reference
+          to: [{ type: 'weapon' }],
         },
       ],
     },
+    {
+      name: 'class',
+      title: 'Character Class',
+      type: 'reference',
+      to: [{ type: 'characterClass' }],
+    },
+    {
+      name: 'race',
+      title: 'Character Race',
+      type: 'reference',
+      to: [{ type: 'characterRace' }],
+    },
   ],
-}
+};

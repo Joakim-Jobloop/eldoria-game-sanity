@@ -1,4 +1,5 @@
-import {allDamageTypes, elementalTypes, primaryStats} from '../fundamentals/attributes'
+import { validation } from 'sanity'
+import {allDamageTypes, elementalTypes} from '../fundamentals/attributes'
 import {MinMaxRule, ValidationRule} from '../types/types'
 
 
@@ -31,25 +32,52 @@ export const numberDropdown = (
   validation: (Rule: ValidationRule) => Rule.required().error(`${title} must be selected`),
 })
 
+//*THE NEW  checkDropdown rule
+type StringOption = string;
+type ObjectOption = { title: string; value: string };
 
-/**
- * Creates a checkbox dropdown list with visual layout and consistent internal values.
- * Used for category/subcategory/class selections.
- */
-export const checkDropdown = (name: string, title: string, options: string[]) => ({
-  name,
-  title,
-  type: 'array',
-  of: [{type: 'string'}],
-  options: {
-    layout: 'grid',
-    list: options.map((option) => ({
-      title: option,
-      value: option.toLowerCase().replace(/\s+/g, '_'), // Consistent formatting
-    })),
-  },
-  validation: (Rule: ValidationRule) => Rule.required().error(`One must be selected`),
-})
+export const checkDropdown = (
+  name: string,
+  title: string,
+  options: StringOption[] | ObjectOption[]
+) => {
+  const isStringArray = typeof options[0] === "string";
+
+  return {
+    name,
+    title,
+    type: "array",
+    of: [{ type: "string" }],
+    options: {
+      layout: "grid",
+      list: isStringArray
+        ? (options as StringOption[]).map((option) => ({
+            title: option,
+            value: option.toLowerCase().replace(/\s+/g, "_"),
+          }))
+        : options,
+    },
+    validation: (Rule: ValidationRule) =>
+      Rule.required().error(`One must be selected`),
+  };
+};
+
+
+//*  THE OLD RULE 
+// export const checkDropdown = (name: string, title: string, options: string[]) => ({
+//   name,
+//   title,
+//   type: 'array',
+//   of: [{type: 'string'}],
+//   options: {
+//     layout: 'grid',
+//     list: options.map((option) => ({
+//       title: option,
+//       value: option.toLowerCase().replace(/\s+/g, '_'), // Consistent formatting
+//     })),
+//   },
+//   validation: (Rule: ValidationRule) => Rule.required().error(`One must be selected`),
+// })
 
 
 /**
@@ -108,19 +136,25 @@ export const defensiveStats = () => ({
 })
 
 
-/**
- * Defines the starting attribute values for a character class.
- * Each stat has a numeric input limited between min and max parameters.
- */
-export const attributeStats = (min: number, max: number) => ({
-  name: "classStarterAttributes",
-  title: "Choose starter attributes for the class",
-  type: "object",
-  fields: primaryStats.map((attr) => ({
-    name: attr.toLowerCase(),
-    title: attr,
-    type: "number",
-    validation: (Rule: MinMaxRule) =>
-      Rule.min(min).max(max).error(`${attr} must be between 1 and 10`),
-  })),
+//*THE NEW RULE ADDED FOR the races but can potentially be used for more 
+export const createRadioDropdown = (
+  name:string,
+  title:string,
+  options: {title:string; value:string}[]
+) => ({
+  name,
+  title,
+  type:"string",
+  options: {
+    layout:"radio",
+    list: options,
+  },
+  validation: (Rule:any) =>
+    Rule.required()
+      .custom((value: any) => {
+        if (!value) return "You must select one of the options!";
+        if (typeof value != "string") return "Invalid selection";
+        return true;
+      })
+      .error("You must select exactly one of the provided options!")
 });

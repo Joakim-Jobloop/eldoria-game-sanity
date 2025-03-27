@@ -21,3 +21,4 @@ export const needsCategories = (category: string, subCategory: string) => ({
 export const needsCategory = (category: string) => ({
   hidden: ({parent}: {parent?: {category?: string[]}}) => !parent?.category?.includes(category),
 })
+
