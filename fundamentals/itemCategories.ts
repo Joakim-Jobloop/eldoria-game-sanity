@@ -1,4 +1,4 @@
-export const itemCategories = ['Equippable', 'Consumable', 'Craftable']
+export const itemCategories = ['Equippable', 'Consumable', 'Crafting Item']
 
 export const itemSubCategories = [
   'Weapon',
