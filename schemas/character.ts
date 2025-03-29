@@ -23,12 +23,6 @@ export default {
           type: 'array',
           of: [{ type: 'reference', to: [{ type: 'item' }] }],
         },
-        {
-          name: 'weapon',
-          title: 'Starter Weapon',
-          type: 'reference', // changed from array to single reference
-          to: [{ type: 'weapon' }],
-        },
       ],
     },
     {
