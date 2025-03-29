@@ -1,6 +1,7 @@
+import { primaryStats } from "../fundamentals/attributes";
 import { characterRaces, genderList } from "../fundamentals/races";
-import { checkDropdown, createRadioDropdown } from "../schemaVariables/schemaVariables";
-import { ValidationRule } from "../types/types";
+import { createRadioDropdown } from "../schemaVariables/schemaVariables";
+import { AttributeRules, ValidationRule } from "../types/types";
 
 export default {
   name: 'characterRace',
@@ -14,68 +15,86 @@ export default {
       validation: (Rule: ValidationRule) =>
         Rule.required().error('Description is required'),
     },
-    checkDropdown('raceCategory', 'What Character Race Type is this?', characterRaces),
+    createRadioDropdown('raceCategory', 'What Character Race Type is this?', characterRaces),
+
     {
-      name: 'subRace', 
-      title: 'What sub-race are you?',
-      type: 'string',
-      validation: (Rule: ValidationRule) =>
-        Rule.required().error('Sub-race name is required'),
+      name: "subRace",
+      title: "Select Character Sub-Race",
+      type: "string",
+      options: {
+        list: characterRaces.map(race => ({
+          title: race.title,
+          value: race.value,
+        })),
+      },
+      // subRace is optional — no validation!
     },
-    createRadioDropdown("race", "Select Character Race", characterRaces),
-    //* This is where the magic happens :)
+
     {
       name: "genderList",
       title: "Gender",
       type: "string",
-      options:{
-        layout:"radio",
-        list:genderList
+      options: {
+        layout: "radio",
+        list: genderList,
       },
       validation: (Rule: ValidationRule) =>
         Rule.required().error('Pick your Gender!'),
-    }, 
-    //*     Image fields here
-    //* This just makes the connection so that
-    //*we can upload those images but they wont actually show up 
-    //* That is the frontend part
+    },
+
     {
-      name:"raceGenderVisuals",
-      title:"Race & Gender Visuals",
-      type:"array",
-      of:[
+      name: 'starterAttributes',
+      title: 'Starter Attributes',
+      type: 'object',
+      fieldsets: [
         {
-          type:"object",
-          title:"Visual Set",
-          fields:[
-            {
-              name:"race",
-              title:"Race",
-              type:"string",
-              options: {list:characterRaces},
-              validation:(Rule:ValidationRule) =>
-                Rule.required().error("Race is required"),
-            },
-            {
-              name:"gender",
-              title:"Gender",
-              type:"string",
-              options:{list: genderList, layout:"radio"},
-              validation:(Rule:ValidationRule) => 
-                Rule.required().error("Gender is required"),
-            },
-            {
-              name:"images",
-              title:"Images",
-              type:"array",
-              of:[{type:"image"}],
-              options:{layout:"grid"},
-              validation:(Rule:ValidationRule) =>
-                Rule.required().error("At least one image is required"),
-            },
-          ],
+          name: 'defenseStats',
+          title: 'Defense Stats',
+          options: { columns: 3 },
         },
       ],
+      fields: primaryStats.map((stat) => ({
+        name: stat.toLowerCase().replace(/\s+/g, '_'),
+        title: stat,
+        type: 'number',
+        fieldset: 'defenseStats',
+        validation: (Rule: AttributeRules) =>
+          Rule.min(1).max(10).error(`${stat} must be between 1 and 10`),
+      })),
+    },
+
+    {
+      name: "portrait",
+      title: "Race Portrait",
+      type: "image",
+      options: { hotspot: true },
     },
   ],
+
+  preview: {
+    select: {
+      title: 'raceCategory',
+      subtitle: 'subRace',
+      description: 'description',
+      media: 'portrait', // show image in document list
+    },
+    prepare({
+      title,
+      subtitle,
+      description,
+      media,
+    }: {
+      title?: string;
+      subtitle?: string;
+      description?: string;
+      media?: any;
+    }) {
+      return {
+        title: title || 'Unnamed Race',
+        subtitle: subtitle || 'No Sub-Race',
+        description: description ? description.slice(0, 100) : 'No description provided',
+        media,
+      };
+    },
+  },
 };
