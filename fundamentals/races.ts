@@ -2,7 +2,7 @@ export const characterRaces = [
     { title: 'Eidralis', value: 'eidralis' },
     { title: 'Eldrin', value: 'eldrin' },
     { title: 'Human', value: 'human' },
-    { title: 'Skyforger', value: 'skyforger' },
+    { title: 'Skyforged', value: 'skyforged' },
     { title: 'Stonekin', value: 'stonekin' },
     { title: 'Umbran', value: 'umbran' },
     { title: 'Verdwalker', value: 'verdwalker' },
