@@ -16,7 +16,7 @@ export default {
       validation: (Rule: ValidationRule) =>
         Rule.required().error('Description is required'),
     },
-    createRadioDropdown('raceCategory', 'What Character Race Type is this?', characterRaces),
+    createRadioDropdown('raceCategory', 'What Character Race is this?', characterRaces),
 
     // {
     //   name: "subRace",
