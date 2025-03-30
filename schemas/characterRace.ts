@@ -38,11 +38,11 @@ export default {
       fieldsets: [
         {
           name: 'starterStats',
-          title: 'Starter Stats (should sum up to 30)',
+          title: 'Starter Stats (should sum up to 15)',
           options: { columns: 3 },
         },
       ],
-      validation: validateTotalSum(30, 'Starter attributes'),
+      validation: validateTotalSum(15, 'Starter attributes'),
       fields: primaryStats.map((stat) => ({
         name: stat.toLowerCase().replace(/\s+/g, '_'),
         title: stat,
