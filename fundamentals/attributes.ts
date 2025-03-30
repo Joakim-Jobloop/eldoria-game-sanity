@@ -4,8 +4,7 @@ export const primaryStats = [
   'Vitality',
   'Intelligence',
   'Wisdom',
-  'Luck',
-  'Charm',
+  'Charisma',
 ]
 
 export const secondaryStats = [

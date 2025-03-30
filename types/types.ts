@@ -24,3 +24,10 @@ export type ValidationRule = {
   required(): ValidationRule
   error(message: string): ValidationRule
 }
+
+
+export type SumValidationRule = {
+  custom(
+    fn: (value: Record<string, number>) => true | string
+  ): ValidationRule
+}

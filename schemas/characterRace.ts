@@ -1,5 +1,6 @@
 import { primaryStats } from "../fundamentals/attributes";
-import { characterRaces, genderList } from "../fundamentals/races";
+import { characterRaces } from "../fundamentals/races";
+import { validateTotalSum } from "../schemaVariables/common";
 import { createRadioDropdown } from "../schemaVariables/schemaVariables";
 import { AttributeRules, ValidationRule } from "../types/types";
 
@@ -17,30 +18,18 @@ export default {
     },
     createRadioDropdown('raceCategory', 'What Character Race Type is this?', characterRaces),
 
-    {
-      name: "subRace",
-      title: "Select Character Sub-Race",
-      type: "string",
-      options: {
-        list: characterRaces.map(race => ({
-          title: race.title,
-          value: race.value,
-        })),
-      },
-      // subRace is optional — no validation!
-    },
-
-    {
-      name: "genderList",
-      title: "Gender",
-      type: "string",
-      options: {
-        layout: "radio",
-        list: genderList,
-      },
-      validation: (Rule: ValidationRule) =>
-        Rule.required().error('Pick your Gender!'),
-    },
+    // {
+    //   name: "subRace",
+    //   title: "Select Character Sub-Race",
+    //   type: "string",
+    //   options: {
+    //     list: characterRaces.map(race => ({
+    //       title: race.title,
+    //       value: race.value,
+    //     })),
+    //   },
+    //   // subRace is optional
+    // },
 
     {
       name: 'starterAttributes',
@@ -48,24 +37,38 @@ export default {
       type: 'object',
       fieldsets: [
         {
-          name: 'defenseStats',
-          title: 'Defense Stats',
+          name: 'starterStats',
+          title: 'Starter Stats (should sum up to 30)',
           options: { columns: 3 },
         },
       ],
+      validation: validateTotalSum(30, 'Starter attributes'),
       fields: primaryStats.map((stat) => ({
         name: stat.toLowerCase().replace(/\s+/g, '_'),
         title: stat,
         type: 'number',
-        fieldset: 'defenseStats',
+        fieldset: 'starterStats',
         validation: (Rule: AttributeRules) =>
           Rule.min(1).max(10).error(`${stat} must be between 1 and 10`),
       })),
     },
 
+    // Gender-specific portraits
     {
-      name: "portrait",
-      title: "Race Portrait",
+      name: "portraitMale",
+      title: "Male Portrait",
+      type: "image",
+      options: { hotspot: true },
+    },
+    {
+      name: "portraitFemale",
+      title: "Female Portrait",
+      type: "image",
+      options: { hotspot: true },
+    },
+    {
+      name: "portraitOther",
+      title: "Other Portrait",
       type: "image",
       options: { hotspot: true },
     },
@@ -74,13 +77,13 @@ export default {
   preview: {
     select: {
       title: 'raceCategory',
-      subtitle: 'subRace',
+      // subtitle: 'subRace',
       description: 'description',
-      media: 'portrait', // show image in document list
+      media: 'portraitMale', // fallback default thumbnail
     },
     prepare({
       title,
-      subtitle,
+      // subtitle,
       description,
       media,
     }: {
@@ -91,7 +94,7 @@ export default {
     }) {
       return {
         title: title || 'Unnamed Race',
-        subtitle: subtitle || 'No Sub-Race',
+        // subtitle: subtitle || 'No Sub-Race',
         description: description ? description.slice(0, 100) : 'No description provided',
         media,
       };

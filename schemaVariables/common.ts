@@ -22,3 +22,17 @@ export const needsCategory = (category: string) => ({
   hidden: ({parent}: {parent?: {category?: string[]}}) => !parent?.category?.includes(category),
 })
 
+import { SumValidationRule } from "../types/types"
+
+export const validateTotalSum = (expectedTotal: number, label = "Attributes") =>
+  (Rule: SumValidationRule) =>
+    Rule.custom((fields) => {
+      const total = Object.values(fields || {}).reduce(
+        (acc, val) => acc + (val || 0),
+        0
+      )
+      return total === expectedTotal
+        ? true
+        : `${label} must total exactly ${expectedTotal}`
+    })
+
