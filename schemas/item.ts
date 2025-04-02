@@ -19,7 +19,7 @@ import {MinMaxRule, ValidationRule} from '../types/types'
 
 export default {
   name: 'item',
-  title: 'Create an Item!',
+  title: 'Item',
   type: 'document',
   fields: [
     {

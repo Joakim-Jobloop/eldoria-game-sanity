@@ -2,17 +2,17 @@ export const characterClasses = [
   //(Aetherblade):
   {title:'Aetherblade', value:'aetherblade'},
   //(Veilweaver):
-  {title:'Veilweaver', value:'Veilweaver'},
+  {title:'Veilweaver', value:'veilweaver'},
   //(Riftshroud):
   {title:'Riftshroud', value:'riftshroud'},
   // (Aethershield):
-  {title:'Aethershield', value:'aethershield'},
+  {title:'Astral Sentinel', value:'astral-sentinel'},
   //(Riftwalker):
-  {title:'Riftwalker', value:'riftwalker'},
+  {title:'Aetheric Sage', value:'aetheric-sage'},
   //(Primordial Charger):
   {title:'Primordial Charger', value:'primordial charger'},
   // (Riftforger):
-  {title:'Riftforger', value:'riftforger'},
+  {title:'Forgewright', value:'forge-wright'},
   // (Veilcaller):
   {title:'Veilcaller', value:'veilcaller'},
 ]
