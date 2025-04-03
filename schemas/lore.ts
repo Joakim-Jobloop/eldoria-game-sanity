@@ -1,56 +1,101 @@
-import { loreCategories } from "../fundamentals/loreCategories";
 import { checkDropdown } from "../schemaVariables/schemaVariables";
+import { loreCategories } from "../fundamentals/loreCategories";
+import { needsCategory as needsLoreCategory } from "../schemaVariables/common";
 import { ValidationRule } from "../types/types";
 
 export default {
   name: "lore",
-  title: "Lore entry",
+  title: "Lore Entry",
   type: "document",
   fields: [
     {
       name: "title",
       title: "Title",
       type: "string",
-      validation: (Rule: ValidationRule) => Rule.required().error("Lore entry must have a title"),
+      validation: (Rule: ValidationRule) =>
+        Rule.required().error("Every lore entry needs a title."),
     },
-
-    {
-      name: "loreID",
-      title: "Lore ID",
-      type: "slug",
-      options: {
-        source: "title",
-        maxLength: 96,
-      },
-      validation: (Rule: ValidationRule) => Rule.required().error("Lore entry must have an ID"),
-    },
-
     {
       name: "loreImage",
-      title: "Lore image",
+      title: "Lore Image",
       type: "image",
       options: { hotspot: true },
     },
+    {
+        name: "loreIcon",
+        title: "Lore Icon",
+        type: "image",
+        options: { hotspot: true },
+      },
+  
 
-    checkDropdown("category", "What kind of lore is this?", loreCategories),
+    // CATEGORY SELECTION
+    checkDropdown("category", "Lore Category", loreCategories),
 
-    // Core Lore Sections
+    // === CONDITIONAL FIELDS BASED ON CATEGORY ===
+
+    {
+      name: "deityAspect",
+      title: "Divine Aspect",
+      type: "string",
+      ...needsLoreCategory("deity"),
+    },
+    {
+      name: "phenomenonEffect",
+      title: "Phenomenon Effect",
+      type: "text",
+      ...needsLoreCategory("aetheric_phenomenon"),
+    },
+    {
+      name: "locationDetails",
+      title: "Region or Plane",
+      type: "string",
+      ...needsLoreCategory("location"),
+    },
+    {
+      name: "artifactPower",
+      title: "Artifact Power or Use",
+      type: "text",
+      ...needsLoreCategory("artifact"),
+    },
+    {
+      name: "philosophicalDoctrine",
+      title: "Core Belief or Teaching",
+      type: "text",
+      ...needsLoreCategory("philosophy_or_teaching"),
+    },
+
+    // === SHARED FIELDS (USED IN ALL LORE TYPES) ===
     { name: "mainTagline", title: "Main Tagline", type: "string" },
     { name: "natureAndEssence", title: "Nature and Essence", type: "text" },
     { name: "symbolismAndAlignment", title: "Symbolism and Alignment", type: "text" },
     { name: "roleInEldoria", title: "Role in Eldoria", type: "text" },
-
-    // Aetheric Connection (Optional, may not be relevant to all lore types)
     { name: "aethericConnectionTagline", title: "Aetheric Connection Tagline", type: "string" },
-    { name: "aethericAdaptation", title: "Aetheric Adaptation", type: "text" },
-    { name: "aethericAdaptationTagline", title: "Aetheric Adaptation Tagline", type: "string" },
-
-    // Philosophy, Use, Meaning
     { name: "philosophy", title: "Philosophy and Orders", type: "text" },
-    { name: "signatureAbilities", title: "Signature Abilities", type: "array", of: [{ type: "string" }] },
     { name: "symbolism", title: "Symbolism and Role in Eldoria", type: "text" },
     { name: "folklore", title: "Folklore", type: "text" },
+    {
+        name: "relatedEntities",
+        title: "Related Lore (Links or References)",
+        type: "array",
+        of: [{ type: "reference", to: [{ type: "lore" }] }],
+      },
+      
+      {
+        name: "quotes",
+        title: "Notable Quotes",
+        type: "array",
+        of: [{ type: "string" }],
+      },
+
+    {
+        name: "dateOrEra",
+        title: "Date or Era (if applicable)",
+        type: "string",
+        ...needsLoreCategory("historical_event"),
+      }
   ],
+  
 
   preview: {
     select: {
@@ -68,7 +113,7 @@ export default {
       media?: any;
     }) {
       return {
-        title: title || "Unnamed Lore Entry",
+        title: title || "Unnamed Lore",
         description: description?.slice(0, 100) || "No tagline provided",
         media,
       };
