@@ -1,5 +1,5 @@
-import { validation } from 'sanity'
-import {allDamageTypes, elementalTypes} from '../fundamentals/attributes'
+
+import {allDamageTypes} from '../fundamentals/attributes'
 import {MinMaxRule, ValidationRule} from '../types/types'
 
 
@@ -33,13 +33,12 @@ export const numberDropdown = (
 })
 
 //*THE NEW  checkDropdown rule
-type StringOption = string;
 type ObjectOption = { title: string; value: string };
 
 export const checkDropdown = (
   name: string,
   title: string,
-  options: StringOption[] | ObjectOption[]
+  options: string[] | ObjectOption[]
 ) => {
   const isStringArray = typeof options[0] === "string";
 
@@ -51,7 +50,7 @@ export const checkDropdown = (
     options: {
       layout: "grid",
       list: isStringArray
-        ? (options as StringOption[]).map((option) => ({
+        ? (options as string[]).map((option) => ({
             title: option,
             value: option.toLowerCase().replace(/\s+/g, "_"),
           }))
@@ -61,24 +60,6 @@ export const checkDropdown = (
       Rule.required().error(`One must be selected`),
   };
 };
-
-
-//*  THE OLD RULE 
-// export const checkDropdown = (name: string, title: string, options: string[]) => ({
-//   name,
-//   title,
-//   type: 'array',
-//   of: [{type: 'string'}],
-//   options: {
-//     layout: 'grid',
-//     list: options.map((option) => ({
-//       title: option,
-//       value: option.toLowerCase().replace(/\s+/g, '_'), // Consistent formatting
-//     })),
-//   },
-//   validation: (Rule: ValidationRule) => Rule.required().error(`One must be selected`),
-// })
-
 
 /**
  * Defines offensive damage stats for a weapon.
