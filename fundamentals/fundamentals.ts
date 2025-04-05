@@ -124,6 +124,8 @@ export const loreCategories = [
   'Location',
   'Philosophy or Teaching',
   'Artifact',
+  'Race',
+  'Class',
   'Other',
 ]
 export const dropdownLoreCategories = formatToDropdownOptions(loreCategories)
@@ -153,7 +155,7 @@ export const dropdownSkillCategories = formatToDropdownOptions(skillCategories)
 const targetTypes = ['Self', 'Ally', 'Enemy', 'Area', 'Group', 'All']
 export const dropdownTargetTypes = formatToDropdownOptions(targetTypes)
 
-const aetherAlignments = ['Vitalis', 'Entropis', 'Balanced', 'Antum']
+const aetherAlignments = ['Vitalis', 'Vitalis/Balanced', 'Balanced', 'Entropis/Balanced', 'Entropis', 'Aether', 'Antum']
 export const dropdownAetherAlignments = formatToDropdownOptions(aetherAlignments)
 
 // ========== Quest Metadata ==========

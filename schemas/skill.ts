@@ -77,9 +77,9 @@ import {
         ],
       },
   
-      { ...skillStatEffects(), ...needsCategory('Support', 'Healing', 'Utility') },
-      { ...skillOffensiveStats(), ...needsCategory('Offensive', 'Ultimate') },
-      { ...skillDefensiveStats(), ...needsCategory('Defensive', 'Support') },
+      { ...skillStatEffects(), ...needsCategory('support', 'healing', 'utility') },
+      { ...skillOffensiveStats(), ...needsCategory('offensive', 'ultimate') },
+      { ...skillDefensiveStats(), ...needsCategory('defensive', 'support') },
   
       // Conditions
       checkDropdown('conditionsApplied', 'Conditions Applied by this Skill', dropdownConditions),

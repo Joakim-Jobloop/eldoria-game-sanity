@@ -2,55 +2,104 @@
 // schemas/lore.ts
 // ===========================
 
-import { dropdownLoreCategories } from '../fundamentals/fundamentals'
+import {dropdownAetherAlignments, dropdownLoreCategories} from '../fundamentals/fundamentals'
 import {
   createRadioDropdown,
   flexibleReferenceArray,
   needsCategory,
 } from '../schemaVariables/schemaVariables'
-import { ValidationRule } from '../types/types'
+import {ValidationRule} from '../types/types'
 
 export default {
   name: 'lore',
   title: 'Lore Entry',
   type: 'document',
-  fieldsets: [
-    { name: 'core', title: 'Core Lore Fields', options: { columns: 2 } },
-  ],
+  fieldsets: [{name: 'core', title: 'Core Lore Fields', options: {columns: 2}}],
   fields: [
     // Category selection
     createRadioDropdown('category', 'What kind of lore is this?', dropdownLoreCategories),
 
     // Common fields
-    { name: 'title', title: 'Lore Title', type: 'string', validation: (Rule: ValidationRule) => Rule.required() },
-    { name: 'mainTagline', title: 'Main Tagline', type: 'string' },
-    { name: 'loreSummary', title: 'Lore Summary', type: 'text' },
+    {
+      name: 'title',
+      title: 'Lore Title',
+      type: 'string',
+      validation: (Rule: ValidationRule) => Rule.required(),
+    },
+    {name: 'mainTagline', title: 'Main Tagline', type: 'string'},
+    {name: 'loreSummary', title: 'Lore Summary', type: 'text'},
 
     // Conditional core fields
-    { name: 'appearance', title: 'Appearance', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Aetheric Phenomenon', 'Metaphysical Force') },
-    { name: 'cultureAndSociety', title: 'Culture and Society', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Philosophy or Teaching') },
-    { name: 'homeland', title: 'Homeland Description', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Location') },
-    { name: 'myth', title: 'Myth or Legend', type: 'text', ...needsCategory('Deity', 'Historical Event', 'Character Race', 'Character Class') },
-    flexibleReferenceArray("faction", "Known Faction or Sect", ['faction']),
-    { name: 'natureAndTraits', title: 'Nature and Traits', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Metaphysical Force') },
-    { name: 'uniqueArtifact', title: 'Unique Artifact', type: 'text', ...needsCategory('Artifact', 'Deity', 'Character Class') },
     {
-      name: 'aetherAlignment',
-      title: 'Aether Alignment',
-      type: 'string',
-      options: {
-        layout: 'radio',
-        list: ['Vitalis', 'Entropis', 'Balanced'],
-      },
-      ...needsCategory('Deity', 'Aetheric Phenomenon', 'Character Class', 'Character Race', 'Metaphysical Force'),
+      name: 'appearance',
+      title: 'Appearance',
+      type: 'text',
+      ...needsCategory(
+        'deity',
+        'race',
+        'class',
+        'aetheric_phenomenon',
+        'metaphysical_force',
+        'Race',
+      ),
+    },
+    {
+      name: 'cultureAndSociety',
+      title: 'Culture and Society',
+      type: 'text',
+      ...needsCategory('deity', 'race', 'class', 'philosophy_or_teaching'),
+    },
+    {
+      name: 'homeland',
+      title: 'Homeland Description',
+      type: 'text',
+      ...needsCategory('deity', 'race', 'class', 'location'),
+    },
+    {
+      name: 'myth',
+      title: 'Myth or Legend',
+      type: 'text',
+      ...needsCategory('deity', 'historical_event', 'race', 'class'),
+    },
+    {
+      name: 'natureAndTraits',
+      title: 'Nature and Traits',
+      type: 'text',
+      ...needsCategory('deity', 'race', 'class', 'metaphysical_force'),
+    },
+    {
+      name: 'uniqueArtifact',
+      title: 'Unique Artifact',
+      type: 'text',
+      ...needsCategory('artifact', 'deity', 'class'),
+    },
+    flexibleReferenceArray('faction', 'Known Faction or Sect', ['faction']),
+  
+    {
+      ...createRadioDropdown('aetherAlignment', 'Aether Alignment', dropdownAetherAlignments),
+      ...needsCategory(
+        'deity',
+        'aetheric_phenomenon',
+        'class',
+        'race',
+        'metaphysical_force'
+      ),
     },
 
     // Optional connections
     flexibleReferenceArray('relatedFigures', 'Notable Figures or Deities', ['npc']),
-    flexibleReferenceArray('relatedEntities', 'Connected Entities', ['characterRace', 'characterClass', 'item', 'skill']),
+    flexibleReferenceArray('relatedEntities', 'Connected Entities', [
+      'characterRace',
+      'characterClass',
+      'item',
+      'skill',
+    ]),
+    flexibleReferenceArray('relatedLore', 'Related Lore', [
+      'lore',
+    ]),
 
     // Visual
-    { name: 'image', title: 'Illustration or Visual', type: 'image', options: { hotspot: true } },
+    {name: 'image', title: 'Illustration or Visual', type: 'image', options: {hotspot: true}},
   ],
 
   preview: {
@@ -59,7 +108,7 @@ export default {
       subtitle: 'mainTagline',
       media: 'image',
     },
-    prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: any }) {
+    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
       return {
         title: title || 'Untitled Lore',
         subtitle: subtitle || 'No tagline provided',

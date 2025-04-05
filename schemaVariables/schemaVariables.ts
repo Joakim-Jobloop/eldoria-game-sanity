@@ -123,7 +123,8 @@ export const requiredField = (message: string) => (Rule: ValidationRule) =>
 //* this code is suppose to be for any amount of params, for main categories
 export const needsCategory = (...categories: string[]) => ({
   hidden: ({ parent }: { parent?: { category?: string } }) =>
-    !parent?.category || !categories.map(c => c.toLowerCase()).includes(parent.category.toLowerCase()),
+    !parent?.category ||
+    !categories.includes(parent.category.toLowerCase().replace(/\s+/g, '_')),
 })
 
 //* this code is used for one main and one sub category

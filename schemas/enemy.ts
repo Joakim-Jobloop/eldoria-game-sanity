@@ -96,7 +96,7 @@ import {
         title: 'Corrupted Form of Race',
         type: 'reference',
         to: [{ type: 'characterRace' }],
-        ...needsCategory('Corrupted'),
+        ...needsCategory('corrupted'),
       },
       {
         name: 'isBoss',
