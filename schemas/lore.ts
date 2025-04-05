@@ -31,7 +31,7 @@ export default {
     { name: 'cultureAndSociety', title: 'Culture and Society', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Philosophy or Teaching') },
     { name: 'homeland', title: 'Homeland Description', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Location') },
     { name: 'myth', title: 'Myth or Legend', type: 'text', ...needsCategory('Deity', 'Historical Event', 'Character Race', 'Character Class') },
-    { name: 'faction', title: 'Known Faction or Sect', type: 'text', ...needsCategory('Character Race', 'Character Class', 'Philosophy or Teaching') },
+    flexibleReferenceArray("faction", "Known Faction or Sect", ['faction']),
     { name: 'natureAndTraits', title: 'Nature and Traits', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Metaphysical Force') },
     { name: 'uniqueArtifact', title: 'Unique Artifact', type: 'text', ...needsCategory('Artifact', 'Deity', 'Character Class') },
     {
