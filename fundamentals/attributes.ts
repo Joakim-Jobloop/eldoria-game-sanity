@@ -16,8 +16,6 @@ export const secondaryStats = [
   'Defense',
   'Dodge Chance',
   'Aether Attack Power',
-  // 'Stealth',
-  // 'Night Vision',
 ]
 
 export const tertiaryStats = ['Critical Chance', 'Critical Damage', 'Accuracy', 'Evasion']
@@ -43,25 +41,18 @@ export const allDamageTypes = [...physicalTypes, ...elementalTypes]
 
 //*Dividing the sections properly so they arent all just jumpled up:)
 
-export const groupedAllStats = [
-  ...primaryStats.map(stat => ({
-    title: `🟦 Primary – ${stat}`,
+export const statGroups = {
+  Primary: {emoji: '🟦', values: primaryStats},
+  Secondary: {emoji: '🟩', values: secondaryStats},
+  Tertiary: {emoji: '🟨', values: tertiaryStats},
+  Elemental: {emoji: '🔥', values: elementalTypes},
+  Condition: {emoji: '🕶', values: conditions},
+}
+
+export const groupedAllStats = Object.entries(statGroups).flatMap(([group, {emoji, values}]) =>
+  values.map((stat) => ({
+    title: `${emoji} ${group} – ${stat}`,
     value: stat.toLowerCase().replace(/\s+/g, '_'),
-  })),
-  ...secondaryStats.map(stat => ({
-    title: `🟩 Secondary – ${stat}`,
-    value: stat.toLowerCase().replace(/\s+/g, '_'),
-  })),
-  ...tertiaryStats.map(stat => ({
-    title: `🟨 Tertiary – ${stat}`,
-    value: stat.toLowerCase().replace(/\s+/g, '_'),
-  })),
-  ...elementalTypes.map(stat => ({
-    title: `🔥 Elemental – ${stat}`,
-    value: stat.toLowerCase().replace(/\s+/g, '_'),
-  })),
-  ...conditions.map(stat => ({
-    title: `🕶 Condition – ${stat}`,
-    value: stat.toLowerCase().replace(/\s+/g, '_'),
-  })),
-];
+  }))
+)
+

@@ -1,36 +1,18 @@
-import { primaryStats } from "../fundamentals/attributes";
-import { characterRaces } from "../fundamentals/races";
-import { validateTotalSum } from "../schemaVariables/common";
-import { createRadioDropdown } from "../schemaVariables/schemaVariables";
-import { AttributeRules, ValidationRule } from "../types/types";
+import {primaryStats} from '../fundamentals/attributes'
+import {characterRaces} from '../fundamentals/races'
+import {validateTotalSum} from '../schemaVariables/common'
+import {createRadioDropdown} from '../schemaVariables/schemaVariables'
+import {AttributeRules} from '../types/types'
 
 export default {
   name: 'characterRace',
   title: 'Character Race',
   type: 'document',
   fields: [
-    {
-      name: 'description',
-      title: 'Description',
-      type: 'text',
-      validation: (Rule: ValidationRule) =>
-        Rule.required().error('Description is required'),
-    },
+    // RACE TYPE
     createRadioDropdown('raceCategory', 'What Character Race is this?', characterRaces),
 
-    // {
-    //   name: "subRace",
-    //   title: "Select Character Sub-Race",
-    //   type: "string",
-    //   options: {
-    //     list: characterRaces.map(race => ({
-    //       title: race.title,
-    //       value: race.value,
-    //     })),
-    //   },
-    //   // subRace is optional
-    // },
-
+    // ATTRIBUTES
     {
       name: 'starterAttributes',
       title: 'Starter Attributes',
@@ -39,7 +21,7 @@ export default {
         {
           name: 'starterStats',
           title: 'Starter Stats (should sum up to 15)',
-          options: { columns: 3 },
+          options: {columns: 3},
         },
       ],
       validation: validateTotalSum(15, 'Starter attributes'),
@@ -53,51 +35,85 @@ export default {
       })),
     },
 
-    // Gender-specific portraits
+    // VISUALS
+    {name: 'logo', title: 'Race Logo', type: 'image', options: {hotspot: true}},
+    {name: 'portraitMale', title: 'Male Portrait', type: 'image', options: {hotspot: true}},
+    {name: 'portraitFemale', title: 'Female Portrait', type: 'image', options: {hotspot: true}},
+    {name: 'portraitOther', title: 'Other Portrait', type: 'image', options: {hotspot: true}},
+
+    // CORE LORE
+    {name: 'mainTagline', title: 'Main Tagline', type: 'string'},
+    {name: 'loreSummary', title: 'Lore Summary', type: 'text'},
+    {name: 'appearance', title: 'Appearance', type: 'text'},
+    {name: 'cultureAndSociety', title: 'Culture and Society', type: 'text'},
+    {name: 'homeland', title: 'Homeland Description', type: 'text'},
+    {name: 'myth', title: 'Myth or Legend', type: 'text'},
+    {name: 'faction', title: 'Known Faction or Sect', type: 'text'},
+
+    // OPTIONAL LORE ENRICHMENT
+    {name: 'natureAndTraits', title: 'Nature and Traits', type: 'text'},
+    {name: 'uniqueArtifact', title: 'Unique Artifact', type: 'text'},
+
+    // AETHERIC ALIGNMENT
     {
-      name: "portraitMale",
-      title: "Male Portrait",
-      type: "image",
-      options: { hotspot: true },
+      name: 'aetherAlignment',
+      title: 'Typical Aether Alignment',
+      type: 'string',
+      options: {
+        list: ['Vitalis', 'Entropis', 'Balanced'],
+        layout: 'radio',
+      },
     },
-    {
-      name: "portraitFemale",
-      title: "Female Portrait",
-      type: "image",
-      options: { hotspot: true },
-    },
-    {
-      name: "portraitOther",
-      title: "Other Portrait",
-      type: "image",
-      options: { hotspot: true },
-    },
+
+    //! FUTURE USE – Uncomment when these schemas are live:
+    // {
+    //   name: 'raceTraits',
+    //   title: 'Race Traits',
+    //   type: 'array',
+    //   of: [
+    //     {
+    //       type: 'reference',
+    //       to: [{type: 'trait'}],
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: 'corruptionForms',
+    //   title: 'Corruption Forms',
+    //   type: 'array',
+    //   of: [
+    //     {
+    //       type: 'reference',
+    //       to: [{type: 'monster'}],
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: 'notableFigures',
+    //   title: 'Notable Figures',
+    //   type: 'array',
+    //   of: [
+    //     {
+    //       type: 'reference',
+    //       to: [{type: 'npc'}],
+    //     },
+    //   ],
+    // },
+
   ],
 
   preview: {
     select: {
       title: 'raceCategory',
-      // subtitle: 'subRace',
-      description: 'description',
-      media: 'portraitMale', // fallback default thumbnail
+      description: 'mainTagline',
+      media: 'portraitMale',
     },
-    prepare({
-      title,
-      // subtitle,
-      description,
-      media,
-    }: {
-      title?: string;
-      subtitle?: string;
-      description?: string;
-      media?: any;
-    }) {
+    prepare({title, description, media}: {title?: string; description?: string; media?: any}) {
       return {
         title: title || 'Unnamed Race',
-        // subtitle: subtitle || 'No Sub-Race',
-        description: description ? description.slice(0, 100) : 'No description provided',
+        description: description ? description.slice(0, 100) : 'No tagline provided',
         media,
-      };
+      }
     },
   },
-};
+}

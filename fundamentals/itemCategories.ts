@@ -32,18 +32,18 @@ export const consumableEffects = [
   'Debuff', // Gains a temporary stat debuff
   'Restore', // Restores a stat
   'Drain', // Drains a stat
-  'Acquire', // Gains a permanent or temporary stat boost
+  'Acquire', // Gains a temporary condition
   'Cure', // Cures a permanent or temporary stat debuff
-  'Resistance', // ???
+  'Resistance', // Gives resistance towards a damage type
 
-  //*First Version
+  //* First Version
   // 'Buff', //? All positive temp or perma effect (including restoration/acquire)
   // 'Debuff', //? All negative temp or perma effects (including drain)
   // 'Heal', //? Restoration of stats like, health, mana
   // 'Cure', //? Removing negative condition like, poison, charms, curses
   // 'Resist', //? Temporarly gives resist to effect such as (elemental, debuffs, etc)
 
-  //*Second Version
+  //* Second Version
   // 'Buff',
   // 'Debuff',
   // 'Heal',
