@@ -23,12 +23,29 @@ export const elementalTypes = ['EmberVeil', 'Voidrime', 'Shatterlight', 'Entropi
 export const physicalTypes = ['Slashing', 'Piercing', 'Blunt']
 export const traitTypes = ['Offensive', 'Defensive', 'Utility', 'Hybrid', 'Unique', 'Support', 'Aura']
 
-// ========== Combined Sets ==========
-
 export const allStats = Array.from(
   new Set([...primaryStats, ...secondaryStats, ...tertiaryStats, ...elementalTypes, ...conditions])
 )
 export const allDamageTypes = [...physicalTypes, ...elementalTypes]
+
+
+// ========== Loot Metadata ==========
+
+const lootTiers = [
+  'Junk',
+  'Common',
+  'Uncommon',
+  'Rare',
+  'Masterwork',
+  'Epic',
+  'Legendary',
+  'Mythic',
+  'Divine',
+  'Event',
+]
+export const dropdownLootTiers = formatToDropdownOptions(lootTiers)
+
+
 
 // ========== Character Metadata ==========
 
@@ -139,6 +156,13 @@ export const dropdownTargetTypes = formatToDropdownOptions(targetTypes)
 const aetherAlignments = ['Vitalis', 'Entropis', 'Balanced', 'Antum']
 export const dropdownAetherAlignments = formatToDropdownOptions(aetherAlignments)
 
+// ========== Quest Metadata ==========
+
+const questTypes = ['Main', 'Side', 'Faction', 'Daily', 'Repeatable']
+export const dropdownQuestTypes = formatToDropdownOptions(questTypes)
+
+const completeConditions = ['Kill', 'Time', 'Collect', 'Reach', 'Other']
+export const dropdownWinConditions = formatToDropdownOptions(completeConditions)
 
 // ========== Enemy Metadata ==========
 
@@ -155,6 +179,10 @@ export const dropdownEnemyTypes = formatToDropdownOptions(enemyTypes)
 
 const enemyAggroType = ["Passive" ,"Aggressive", "Territorial", "Summoned"]
 export const dropdownEnemyAggroType = formatToDropdownOptions(enemyAggroType)
+
+const combatTagOptions = ['Melee', 'Ranged', 'Magic', 'AoE', 'Debuff']
+export const dropdownCombatTagOptions = formatToDropdownOptions(combatTagOptions)
+
 
 // ========== Dropdown Bundles ==========
 

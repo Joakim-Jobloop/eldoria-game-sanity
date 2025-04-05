@@ -15,10 +15,8 @@ export type MinMaxRule = {
   error(errorMessage: string): MinMaxRule
 }
 
-export type AttributeRules = {
-  min(minValue: number): MinMaxRule
-  error(errorMessage: string): MinMaxRule
-}
+
+export type AttributeRules = MinMaxRule
 
 export type ValidationRule = {
   required(): ValidationRule

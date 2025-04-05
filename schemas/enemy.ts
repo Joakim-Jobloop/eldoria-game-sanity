@@ -8,11 +8,14 @@ import {
     dropdownPhysicalTypes,
     dropdownEnemyTypes,
     dropdownEnemyAggroType,
+    dropdownLootTiers,
+    dropdownCombatTagOptions,
   } from '../fundamentals/fundamentals'
   
   import {
     createRadioDropdown,
     checkDropdown,
+    needsCategory,
     flexibleReferenceArray,
   } from '../schemaVariables/schemaVariables'
   
@@ -23,6 +26,9 @@ import {
   } from '../schemaVariables/skills/skillSchemaVariables'
   
   import { MinMaxRule, ValidationRule } from '../types/types'
+  
+
+
   
   export default {
     name: 'enemy',
@@ -37,8 +43,7 @@ import {
       createRadioDropdown('type', 'Enemy Type', dropdownEnemyTypes),
       createRadioDropdown('aetherAlignment', 'Aetheric Alignment', dropdownAetherAlignments),
   
-      // Combat stats
-      { name: 'level', title: 'Level', type: 'number' },
+      { name: 'level', title: 'Level', type: 'number', validation: (Rule: MinMaxRule) => Rule.min(1).max(100) },
       { name: 'health', title: 'Health Points', type: 'number' },
       { name: 'speed', title: 'Speed / Turn Priority', type: 'number' },
   
@@ -49,8 +54,9 @@ import {
       skillDefensiveStats(),
       skillStatEffects(),
   
-      { name: 'combatTags', title: 'Combat Tags', type: 'array', of: [{ type: 'string' }], description: 'E.g. Melee, Magic, Ranged, AoE, Debuff' },
-      checkDropdown('aggroType', 'Aggression Type', dropdownEnemyAggroType),
+      createRadioDropdown('combatType', 'Combat Type', dropdownCombatTagOptions),
+      createRadioDropdown('aggroType', 'Aggression Type', dropdownEnemyAggroType),
+      createRadioDropdown('lootTier', 'Loot Tier', dropdownLootTiers),
   
       {
         name: 'skillSet',
@@ -59,11 +65,14 @@ import {
         of: [{ type: 'reference', to: [{ type: 'skill' }] }],
       },
   
-      // Integration
-      flexibleReferenceArray("faction", "Known Faction or Sect", ['faction']),
       { name: 'dangerRating', title: 'Danger Rating (1–5)', type: 'number', validation: (Rule: MinMaxRule) => Rule.min(1).max(5) },
-      { name: 'lootTier', title: 'Loot Tier', type: 'string' },
       { name: 'canBeTamed', title: 'Can This Enemy Be Tamed?', type: 'boolean' },
+      {
+        name: 'faction',
+        title: 'Enemy Faction or Sect',
+        type: 'array',
+        of: [{ type: 'reference', to: [{ type: 'faction' }] }],
+      },
   
       {
         name: 'lootTable',
@@ -88,6 +97,7 @@ import {
         title: 'Corrupted Form of Race',
         type: 'reference',
         to: [{ type: 'characterRace' }],
+        ...needsCategory('Corrupted'),
       },
       {
         name: 'isBoss',
