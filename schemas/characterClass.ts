@@ -1,41 +1,51 @@
-import {primaryStats} from '../fundamentals/attributes'
-import {characterClasses} from '../fundamentals/classes'
-import {validateTotalSum} from '../schemaVariables/common'
-import {createRadioDropdown} from '../schemaVariables/schemaVariables'
-import {AttributeRules} from '../types/types'
+// ===========================
+// schemas/characterClass.ts
+// ===========================
+
+import {
+  dropdownCharacterClasses,
+  dropdownPrimaryStats,
+} from '../fundamentals/fundamentals'
+
+import {
+  validateTotalSum,
+  createRadioDropdown,
+  flexibleReferenceArray,
+} from '../schemaVariables/schemaVariables'
+
+import { AttributeRules } from '../types/types'
 
 export default {
   name: 'characterClass',
   title: 'Character Class',
   type: 'document',
+  fieldsets: [
+    { name: 'starterStats', title: 'Starter Stats (should sum to 15)', options: { columns: 3 } },
+    { name: 'lore', title: 'Lore Fields', options: { columns: 2 } },
+  ],
   fields: [
-    // CLASS NAME SELECTOR
-    createRadioDropdown('className', 'What Character Class is this?', characterClasses),
+    // Dropdown for class name (radio)
+    createRadioDropdown('classCategory', 'What Character Class Type is this?', dropdownCharacterClasses),
 
-    // STARTING ATTRIBUTES
+    // Stat block with validation
     {
       name: 'starterAttributes',
       title: 'Starter Attributes',
       type: 'object',
-      fieldsets: [
-        {
-          name: 'starterStats',
-          title: 'Starter Stats (should sum up to 15)',
-          options: {columns: 3},
-        },
-      ],
+      fieldset: 'starterStats',
       validation: validateTotalSum(15, 'Starter attributes'),
-      fields: primaryStats.map((stat) => ({
-        name: stat.toLowerCase().replace(/\s+/g, '_'),
-        title: stat,
+      fields: dropdownPrimaryStats.map((stat) => ({
+        name: stat.value.replace(/\s+/g, '_').toLowerCase(), // sanitize for valid field name
+        title: stat.title,
         type: 'number',
-        fieldset: 'starterStats',
-        validation: (Rule: AttributeRules) =>
-          Rule.min(1).max(10).error(`${stat} must be between 1 and 10`),
+        validation: (Rule: AttributeRules) => Rule.min(1).max(10).error(`${stat.title} must be between 1 and 10`),
       })),
     },
 
-    // STARTING EQUIPMENT
+    // Trait references
+    flexibleReferenceArray('classTraits', 'Class Traits', ['trait']),
+
+    // Starter equipment
     {
       name: 'startEquipment',
       title: 'Start Equipment',
@@ -43,84 +53,41 @@ export default {
       of: [
         {
           type: 'reference',
-          to: [{type: 'item'}],
+          to: [{ type: 'item' }],
         },
       ],
     },
 
-    // VISUAL FIELDS
-    {
-      name: 'logo',
-      title: 'Class Logo',
-      type: 'image',
-      options: {hotspot: true},
-    },
-    {
-      name: 'portrait',
-      title: 'Class Portrait',
-      type: 'image',
-      options: {hotspot: true},
-    },
+    // Visual fields
+    { name: 'logo', title: 'Class Logo', type: 'image', options: { hotspot: true } },
+    { name: 'portrait', title: 'Class Portrait', type: 'image', options: { hotspot: true } },
 
-    // CORE LORE
-    {name: 'mainTagline', title: 'Main Tagline', type: 'string'},
-    {name: 'archetype', title: 'Role and Archetype', type: 'text'},
-    {name: 'appearance', title: 'Appearance', type: 'text'},
-    {name: 'aethericConnection', title: 'Connection to Aetheric Phenomena', type: 'text'},
-    {name: 'aethericConnectionTagline', title: 'Aetheric Connection Tagline', type: 'string'},
-    {name: 'aethericAdaptation', title: 'Aetheric Adaptation', type: 'text'},
-    {name: 'aethericAdaptationTagline', title: 'Aetheric Adaptation Tagline', type: 'string'},
-    {name: 'philosophy', title: 'Philosophy and Orders', type: 'text'},
-    {name: 'signatureAbilities', title: 'Signature Abilities', type: 'array', of: [{type: 'string'}]},
-    {name: 'symbolism', title: 'Symbolism and Role in Eldoria', type: 'text'},
-    {name: 'folklore', title: 'Folklore', type: 'text'},
+    // Reference: links to lore entry for expanded codex text
+    { name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{ type: 'lore' }] },
 
-    // OPTIONAL ENRICHMENT
-    {name: 'uniqueArtifact', title: 'Unique Artifact', type: 'text'},
-    {name: 'notableFigure', title: 'Notable Figure or Founder', type: 'text'},
-    {
-      name: 'aetherAlignment',
-      title: 'Typical Aether Alignment',
-      type: 'string',
-      options: {
-        list: ['Vitalis', 'Entropis', 'Balanced'],
-        layout: 'radio',
-      },
-    },
+    // Core lore data (grouped in fieldset)
+    { name: 'mainTagline', title: 'Main Tagline', type: 'string', fieldset: 'lore' },
+    { name: 'archetype', title: 'Role and Archetype', type: 'text', fieldset: 'lore' },
+    { name: 'appearance', title: 'Appearance', type: 'text', fieldset: 'lore' },
+    { name: 'aethericConnection', title: 'Connection to Aetheric Phenomena', type: 'text', fieldset: 'lore' },
+    { name: 'aethericConnectionTagline', title: 'Aetheric Connection Tagline', type: 'string', fieldset: 'lore' },
+    { name: 'aethericAdaptation', title: 'Aetheric Adaptation', type: 'text', fieldset: 'lore' },
+    { name: 'aethericAdaptationTagline', title: 'Aetheric Adaptation Tagline', type: 'string', fieldset: 'lore' },
+    { name: 'philosophy', title: 'Philosophy and Orders', type: 'text', fieldset: 'lore' },
+    { name: 'symbolism', title: 'Symbolism and Role in Eldoria', type: 'text', fieldset: 'lore' },
+    { name: 'folklore', title: 'Folklore', type: 'text', fieldset: 'lore' },
 
-    //! FUTURE USE — Uncomment when schemas are live
-    // {
-    //   name: 'classTraits',
-    //   title: 'Class Traits',
-    //   type: 'array',
-    //   of: [
-    //     {
-    //       type: 'reference',
-    //       to: [{type: 'traits'}],
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: 'classAbilities',
-    //   title: 'Class Abilities',
-    //   type: 'array',
-    //   of: [
-    //     {
-    //       type: 'reference',
-    //       to: [{type: 'skills'}],
-    //     },
-    //   ],
-    // },
-
+    // Skill references
+    flexibleReferenceArray('signatureAbilities', 'Signature Abilities', ['skill']),
   ],
 
   preview: {
     select: {
-      title: 'className',
+      title: 'classCategory',
       description: 'mainTagline',
       media: 'portrait',
     },
-    prepare({title, description, media}: {title?: string; description?: string; media?: any}) {
+    prepare({ title, description, media }: { title?: string; description?: string; media?: any }) {
       return {
         title: title || 'Unnamed Class',
         description: description?.slice(0, 100) || 'No tagline provided',

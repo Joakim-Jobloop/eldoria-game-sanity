@@ -1,105 +1,62 @@
-import {primaryStats} from '../fundamentals/attributes'
-import {characterRaces} from '../fundamentals/races'
-import {validateTotalSum} from '../schemaVariables/common'
-import {createRadioDropdown} from '../schemaVariables/schemaVariables'
-import {AttributeRules} from '../types/types'
+// ===========================
+// schemas/characterRace.ts
+// ===========================
+
+import {
+  dropdownCharacterRaces,
+  dropdownPrimaryStats,
+} from '../fundamentals/fundamentals'
+
+import {
+  validateTotalSum,
+  createRadioDropdown,
+  flexibleReferenceArray,
+} from '../schemaVariables/schemaVariables'
+
+import { AttributeRules } from '../types/types'
 
 export default {
   name: 'characterRace',
   title: 'Character Race',
   type: 'document',
+  fieldsets: [
+    { name: 'starterStats', title: 'Starter Stats (should sum to 15)', options: { columns: 3 } },
+    { name: 'lore', title: 'Lore Fields', options: { columns: 2 } },
+  ],
   fields: [
-    // RACE TYPE
-    createRadioDropdown('raceCategory', 'What Character Race is this?', characterRaces),
+    // Dropdown for race selection
+    createRadioDropdown('raceCategory', 'What Character Race is this?', dropdownCharacterRaces),
 
-    // ATTRIBUTES
+    // Stat block
     {
       name: 'starterAttributes',
       title: 'Starter Attributes',
       type: 'object',
-      fieldsets: [
-        {
-          name: 'starterStats',
-          title: 'Starter Stats (should sum up to 15)',
-          options: {columns: 3},
-        },
-      ],
+      fieldset: 'starterStats',
       validation: validateTotalSum(15, 'Starter attributes'),
-      fields: primaryStats.map((stat) => ({
-        name: stat.toLowerCase().replace(/\s+/g, '_'),
-        title: stat,
+      fields: dropdownPrimaryStats.map((stat) => ({
+        name: stat.value.replace(/\s+/g, '_').toLowerCase(),
+        title: stat.title,
         type: 'number',
-        fieldset: 'starterStats',
-        validation: (Rule: AttributeRules) =>
-          Rule.min(1).max(10).error(`${stat} must be between 1 and 10`),
+        validation: (Rule: AttributeRules) => Rule.min(1).max(10).error(`${stat.title} must be between 1 and 10`),
       })),
     },
 
-    // VISUALS
-    {name: 'logo', title: 'Race Logo', type: 'image', options: {hotspot: true}},
-    {name: 'portraitMale', title: 'Male Portrait', type: 'image', options: {hotspot: true}},
-    {name: 'portraitFemale', title: 'Female Portrait', type: 'image', options: {hotspot: true}},
-    {name: 'portraitOther', title: 'Other Portrait', type: 'image', options: {hotspot: true}},
+    // Traits (future schema connection)
+    flexibleReferenceArray('raceTraits', 'Race Traits', ['trait']),
 
-    // CORE LORE
-    {name: 'mainTagline', title: 'Main Tagline', type: 'string'},
-    {name: 'loreSummary', title: 'Lore Summary', type: 'text'},
-    {name: 'appearance', title: 'Appearance', type: 'text'},
-    {name: 'cultureAndSociety', title: 'Culture and Society', type: 'text'},
-    {name: 'homeland', title: 'Homeland Description', type: 'text'},
-    {name: 'myth', title: 'Myth or Legend', type: 'text'},
-    {name: 'faction', title: 'Known Faction or Sect', type: 'text'},
+    // Visuals
+    { name: 'logo', title: 'Race Logo', type: 'image', options: { hotspot: true } },
+    { name: 'portraitMale', title: 'Male Portrait', type: 'image', options: { hotspot: true } },
+    { name: 'portraitFemale', title: 'Female Portrait', type: 'image', options: { hotspot: true } },
+    { name: 'portraitOther', title: 'Other Portrait', type: 'image', options: { hotspot: true } },
 
-    // OPTIONAL LORE ENRICHMENT
-    {name: 'natureAndTraits', title: 'Nature and Traits', type: 'text'},
-    {name: 'uniqueArtifact', title: 'Unique Artifact', type: 'text'},
+    // Lore Reference
+    { name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{ type: 'lore' }] },
 
-    // AETHERIC ALIGNMENT
-    {
-      name: 'aetherAlignment',
-      title: 'Typical Aether Alignment',
-      type: 'string',
-      options: {
-        list: ['Vitalis', 'Entropis', 'Balanced'],
-        layout: 'radio',
-      },
-    },
-
-    //! FUTURE USE – Uncomment when these schemas are live:
-    // {
-    //   name: 'raceTraits',
-    //   title: 'Race Traits',
-    //   type: 'array',
-    //   of: [
-    //     {
-    //       type: 'reference',
-    //       to: [{type: 'trait'}],
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: 'corruptionForms',
-    //   title: 'Corruption Forms',
-    //   type: 'array',
-    //   of: [
-    //     {
-    //       type: 'reference',
-    //       to: [{type: 'monster'}],
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: 'notableFigures',
-    //   title: 'Notable Figures',
-    //   type: 'array',
-    //   of: [
-    //     {
-    //       type: 'reference',
-    //       to: [{type: 'npc'}],
-    //     },
-    //   ],
-    // },
-
+    // Future expansion
+    flexibleReferenceArray('corruptionForms', 'Corruption Forms', ['monster']),
+    flexibleReferenceArray('notableFigures', 'Notable Figures', ['npc']),
   ],
 
   preview: {
@@ -108,7 +65,7 @@ export default {
       description: 'mainTagline',
       media: 'portraitMale',
     },
-    prepare({title, description, media}: {title?: string; description?: string; media?: any}) {
+    prepare({ title, description, media }: { title?: string; description?: string; media?: any }) {
       return {
         title: title || 'Unnamed Race',
         description: description ? description.slice(0, 100) : 'No tagline provided',

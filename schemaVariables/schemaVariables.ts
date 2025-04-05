@@ -1,90 +1,82 @@
+// =======================
+// schemaVariables.ts
+// =======================
 
-import {allDamageTypes} from '../fundamentals/attributes'
-import {MinMaxRule, ValidationRule} from '../types/types'
+import { allDamageTypes } from '../fundamentals/fundamentals';
+import {MinMaxRule, SumValidationRule, ValidationRule} from '../types/types'
+import { formatToDropdownOptions } from '../utils/formatter';
 
+// Reusable dropdown formatter for stats, items, traits, etc.
+export const checkDropdown = (
+  name: string,
+  title: string,
+  options: string[] | {title: string; value: string}[]
+) => {
+  const isStringArray = typeof options[0] === 'string'
+  return {
+    name,
+    title,
+    type: 'array',
+    of: [{type: 'string'}],
+    options: {
+      layout: 'grid',
+      list: isStringArray ? formatToDropdownOptions(options as string[]) : options,
+    },
+    validation: (Rule: ValidationRule) => Rule.required().error(`One must be selected`),
+  }
+}
 
-/**
- * Adds validation to durability fields to ensure values are within a sensible range.
- */
-export const durabilityValidation = (Rule: MinMaxRule) =>
-  Rule.min(1).max(999).error('Durability must be between 1 and 999')
+export const createRadioDropdown = (
+  name: string,
+  title: string,
+  options: {title: string; value: string}[]
+) => ({
+  name,
+  title,
+  type: 'string',
+  options: {
+    layout: 'radio',
+    list: options,
+  },
+  validation: (Rule: any) =>
+    Rule.required()
+      .custom((value: any) => {
+        if (!value) return 'You must select one of the options!'
+        if (typeof value != 'string') return 'Invalid selection'
+        return true
+      })
+      .error('You must select exactly one of the provided options!'),
+})
 
-
-/**
- * Creates a number-based field group (either array or object) for selecting numeric values
- * like stat boosts or effects. Useful for dynamically listing stat options.
- */
 export const numberDropdown = (
   name: string,
   title: string,
   options: string[],
-  isArray: boolean = false,
+  isArray: boolean = false
 ) => ({
   name,
   title,
   type: isArray ? 'array' : 'object',
   fields: Array.from(new Set(options)).map((option) => ({
-    // Deduplicate!
-    name: option.replace(/\s+/g, '_'), // Replace spaces with "_"
-    title: option, // Keep original title as-is
+    name: option.replace(/\s+/g, '_'),
+    title: option,
     type: 'number',
   })),
   validation: (Rule: ValidationRule) => Rule.required().error(`${title} must be selected`),
 })
 
-//*THE NEW  checkDropdown rule
-type ObjectOption = { title: string; value: string };
+export const durabilityValidation = (Rule: MinMaxRule) =>
+  Rule.min(1).max(999).error('Durability must be between 1 and 999')
 
-export const checkDropdown = (
-  name: string,
-  title: string,
-  options: string[] | ObjectOption[]
-) => {
-  const isStringArray = typeof options[0] === "string";
-
-  return {
-    name,
-    title,
-    type: "array",
-    of: [{ type: "string" }],
-    options: {
-      layout: "grid",
-      list: isStringArray
-        ? (options as string[]).map((option) => ({
-            title: option,
-            value: option.toLowerCase().replace(/\s+/g, "_"),
-          }))
-        : options,
-    },
-    validation: (Rule: ValidationRule) =>
-      Rule.required().error(`One must be selected`),
-  };
-};
-
-/**
- * Defines offensive damage stats for a weapon.
- * Each damage type (e.g., Flame, Slashing) gets a `min` and `max` input.
- * Fieldsets group the pairs visually side-by-side in the studio.
- */
 export const offensiveStats = () => ({
   name: 'damage',
   title: 'Set the damage for the weapon',
   type: 'object',
   fields: allDamageTypes.flatMap((stat) => {
-    const baseName = stat.toLowerCase().replace(/\s+/g, '_')
+    const base = stat.toLowerCase().replace(/\s+/g, '_')
     return [
-      {
-        name: `${baseName}_min`,
-        title: 'Min',
-        type: 'number',
-        fieldset: baseName,
-      },
-      {
-        name: `${baseName}_max`,
-        title: 'Max',
-        type: 'number',
-        fieldset: baseName,
-      },
+      {name: `${base}_min`, title: 'Min', type: 'number', fieldset: base},
+      {name: `${base}_max`, title: 'Max', type: 'number', fieldset: base},
     ]
   }),
   fieldsets: allDamageTypes.map((stat) => ({
@@ -96,18 +88,13 @@ export const offensiveStats = () => ({
     Rule.required().error('Weapon must have at least one damage type'),
 })
 
-
-/**
- * Defines defensive stats (flat values) for items like armor or jewelry.
- * Fieldset groups the input fields in a 3-column layout for compact display.
- */
 export const defensiveStats = () => ({
   name: 'defenses',
   title: 'Set the defenses for the item',
   type: 'object',
   fieldsets: [{name: 'defenseStats', title: 'Defense Stats', options: {columns: 3}}],
   fields: allDamageTypes.map((stat) => ({
-    name: stat.toLowerCase().replace(/\s+/g, '_'), // Fix invalid field names
+    name: stat.toLowerCase().replace(/\s+/g, '_'),
     title: stat,
     type: 'number',
     fieldset: 'defenseStats',
@@ -116,26 +103,60 @@ export const defensiveStats = () => ({
     Rule.required().error('Item must have at least one defense value'),
 })
 
-
-//*THE NEW RULE ADDED FOR the races but can potentially be used for more 
-export const createRadioDropdown = (
-  name:string,
-  title:string,
-  options: {title:string; value:string}[]
-) => ({
+export const flexibleReferenceArray = (name: string, title: string, types: string[]) => ({
   name,
   title,
-  type:"string",
-  options: {
-    layout:"radio",
-    list: options,
+  type: 'array',
+  of: [
+    {
+      type: 'reference',
+      to: types.map((type) => ({type})),
+    },
+  ],
+})
+
+
+export const requiredField = (message: string) => (Rule: ValidationRule) =>
+  Rule.required().error(message)
+
+
+//* this code is suppose to be for any amount of params, for main categories
+export const needsCategory = (...categories: string[]) => ({
+  hidden: ({ parent }: { parent?: { category?: string } }) =>
+    !parent?.category || !categories.map(c => c.toLowerCase()).includes(parent.category.toLowerCase()),
+})
+
+//* this code is used for one main and one sub category
+export const needsCategories = (category: string, subCategory: string) => ({
+  hidden: ({parent}: {parent?: {category?: string[]; subCategory?: string[]}}) => {
+    if (!parent || !parent.category || !parent.subCategory) return true
+    const hasCategory = parent.category.map((c) => c.toLowerCase()).includes(category.toLowerCase())
+    const hasSubCategory = parent.subCategory.map((s) => s.toLowerCase()).includes(subCategory.toLowerCase())
+    return !(hasCategory && hasSubCategory)
   },
-  validation: (Rule:any) =>
-    Rule.required()
-      .custom((value: any) => {
-        if (!value) return "You must select one of the options!";
-        if (typeof value != "string") return "Invalid selection";
-        return true;
-      })
-      .error("You must select exactly one of the provided options!")
-});
+})
+
+//* used for roles
+export const needsRoleType = (...roles: string[]) => ({
+  hidden: ({ parent }: { parent?: { roleType?: string } }) =>
+    !parent?.roleType || !roles.map(r => r.toLowerCase()).includes(parent.roleType.toLowerCase()),
+})
+
+export const validateTotalSum = (
+  expectedTotal: number,
+  label = 'Attributes',
+  options: {exact?: boolean; min?: number; max?: number} = {exact: true}
+) => (Rule: SumValidationRule) =>
+  Rule.custom((fields) => {
+    const total = Object.values(fields || {}).reduce((acc, val) => acc + (val || 0), 0)
+    if (options.exact && total !== expectedTotal) {
+      return `${label} must total exactly ${expectedTotal}`
+    }
+    if (options.min && total < options.min) {
+      return `${label} must be at least ${options.min}`
+    }
+    if (options.max && total > options.max) {
+      return `${label} must be no more than ${options.max}`
+    }
+    return true
+  })

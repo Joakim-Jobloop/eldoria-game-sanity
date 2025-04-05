@@ -1,194 +1,70 @@
-import {allStats, groupedAllStats} from '../fundamentals/attributes'
-import {armorSlots, jewelrySlots, weaponSlots} from '../fundamentals/equipmentSlots'
+// ===========================
+// schemas/lore.ts
+// ===========================
+
+import { dropdownLoreCategories } from '../fundamentals/fundamentals'
 import {
-  armourCategories,
-  consumableEffects,
-  itemCategories,
-  itemSubCategories,
-  jewelryCategories,
-  weaponCategories,
-} from '../fundamentals/itemCategories'
-import {needsCategory, needsCategories} from '../schemaVariables/common'
-import {
-  checkDropdown,
-  offensiveStats,
-  defensiveStats,
-  numberDropdown,
+  createRadioDropdown,
+  flexibleReferenceArray,
+  needsCategory,
 } from '../schemaVariables/schemaVariables'
-import {MinMaxRule, ValidationRule} from '../types/types'
+import { ValidationRule } from '../types/types'
 
 export default {
-  name: 'item',
-  title: 'Item',
+  name: 'lore',
+  title: 'Lore Entry',
   type: 'document',
-  fields: [
-    {
-      name: 'name',
-      title: 'Name the item',
-      type: 'string',
-      maxLength: 96,
-      validation: (Rule: ValidationRule) => Rule.required().error('Item must have a name'),
-    },
-    {
-      name: 'itemID',
-      type: 'slug',
-      title: 'Item ID',
-      options: {
-        source: 'name',
-        maxLength: 96,
-      },
-      validation: (Rule: ValidationRule) => Rule.required().error('Item must have an ID'),
-    },
-    {
-      name: 'src',
-      title: 'What is the source of the image for this item?',
-      type: 'image',
-      options: {hotspot: true},
-      validation: (Rule: ValidationRule) => Rule.required().error('Item must have a picture'),
-    },
-
-    {
-      name: 'description',
-      title: 'Tell me about the item',
-      type: 'text',
-      maxLength: 500,
-      validation: (Rule: ValidationRule) => Rule.required().error('Item must have a description'),
-    },
-
-    checkDropdown('category', 'What type of item is it?', itemCategories),
-    checkDropdown('subCategory', 'Be more specific. What type of item is it?', itemSubCategories),
-
-    {
-      name: 'armour',
-      title: 'Some armour, ey? How does it defend the player?',
-      type: 'object',
-      ...needsCategories('equippable', 'armour'),
-      fields: [
-        checkDropdown('armourCategory', 'What armour-class is it?', armourCategories),
-        checkDropdown('slot', 'Where on the body do you want to equip it?', armorSlots),
-        defensiveStats(),
-      ],
-    },
-    {
-      name: 'weapon',
-      title: 'Nice, a weapon! Define the stats below',
-      type: 'object',
-      ...needsCategories('equippable', 'weapon'),
-      fields: [
-        checkDropdown('weaponCategory', 'What type of weapon is it?', weaponCategories),
-        checkDropdown('slot', 'In which hand do you want to equip it?', weaponSlots),
-        offensiveStats(),
-      ],
-    },
-    {
-      name: 'jewelry',
-      title: 'Fancy Jewelry! What are the characteristics for this item?',
-      type: 'object',
-      ...needsCategories('equippable', 'jewelry'),
-      fields: [
-        checkDropdown('jewelryCategory', 'What type of jewelry is this?', jewelryCategories),
-        checkDropdown('slot', 'Where on the body do you want to equip it?', jewelrySlots),
-        defensiveStats(),
-      ],
-    },
-
-    {
-      name: 'potion',
-      title: 'This is a potion? Describe it for me',
-      type: 'object',
-      ...needsCategories('consumable', 'potion'),
-      fields: [
-        checkDropdown(
-          'effectCategory',
-          'What type of effect does this potion give?',
-          consumableEffects,
-        ),
-        //*The new version
-        {
-          name: 'affectedStat',
-          title: 'What stat(s) does this affect?',
-          type: 'array',
-          of: [{ type: 'string' }],
-          options: {
-            layout: 'grid',
-            list: groupedAllStats,
-          },
-        },                
-        { name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number' },
-        { name: 'duration', title: 'How long does it last?', type: 'string' },
-
-
-        //*The old version
-        // checkDropdown('affectedStat', 'What stats does this affect?', allStats),
-        // {name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number'},
-        // {name: 'duration', title: 'How long does it last?', type: 'string'},
-      ],
-    },
-    {
-      name: 'food',
-      title: 'So this is a food item? What does it do?',
-      type: 'object',
-      ...needsCategories('consumable', 'food'),
-      fields: [
-        checkDropdown(
-          'effectCategory',
-          'What type of effect does this food have?',
-          consumableEffects,
-        ),
-        numberDropdown('affectedStat', 'What stats does this affect?', allStats, false), // Fix for numeric input
-        {name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number'},
-        {name: 'duration', title: 'How long does this effect last?', type: 'string'},
-      ],
-    },
-
-    {
-      name: 'recipe',
-      title: 'Recipe',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            {
-              name: 'ingredient',
-              title: 'Ingredient',
-              type: 'reference',
-              to: [{ type: 'item' }],
-            },
-            {
-              name: 'amount',
-              title: 'Amount',
-              type: 'number',
-            },
-          ],
-          preview: {
-            select: {
-              title: 'ingredient.name',
-              subtitle: 'amount',
-              media: 'ingredient.src', //*assumes your image field in item.ts is named 'src'
-            },
-            prepare({ title, subtitle, media }: {title:string; subtitle:string; media:any}) {
-              return {
-                title,
-                subtitle: `Amount: ${subtitle}`,
-                media,
-              };
-            },
-          },
-        },
-      ],
-    },
-    
-    {
-      name: 'durability',
-      title: 'How durable should it be?',
-      type: 'number',
-      ...needsCategory('equippable'),
-      validation: (Rule: MinMaxRule) =>
-        Rule.min(1).max(999).error('Durability must be between 1 and 999'),
-    },
-
-    {name: 'buyPrice', title: 'Set a buy price', type: 'number'},
-    {name: 'sellPrice', title: 'Set a sell price', type: 'number'},
+  fieldsets: [
+    { name: 'core', title: 'Core Lore Fields', options: { columns: 2 } },
   ],
+  fields: [
+    // Category selection
+    createRadioDropdown('category', 'What kind of lore is this?', dropdownLoreCategories),
+
+    // Common fields
+    { name: 'title', title: 'Lore Title', type: 'string', validation: (Rule: ValidationRule) => Rule.required() },
+    { name: 'mainTagline', title: 'Main Tagline', type: 'string' },
+    { name: 'loreSummary', title: 'Lore Summary', type: 'text' },
+
+    // Conditional core fields
+    { name: 'appearance', title: 'Appearance', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Aetheric Phenomenon', 'Metaphysical Force') },
+    { name: 'cultureAndSociety', title: 'Culture and Society', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Philosophy or Teaching') },
+    { name: 'homeland', title: 'Homeland Description', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Location') },
+    { name: 'myth', title: 'Myth or Legend', type: 'text', ...needsCategory('Deity', 'Historical Event', 'Character Race', 'Character Class') },
+    { name: 'faction', title: 'Known Faction or Sect', type: 'text', ...needsCategory('Character Race', 'Character Class', 'Philosophy or Teaching') },
+    { name: 'natureAndTraits', title: 'Nature and Traits', type: 'text', ...needsCategory('Deity', 'Character Race', 'Character Class', 'Metaphysical Force') },
+    { name: 'uniqueArtifact', title: 'Unique Artifact', type: 'text', ...needsCategory('Artifact', 'Deity', 'Character Class') },
+    {
+      name: 'aetherAlignment',
+      title: 'Aether Alignment',
+      type: 'string',
+      options: {
+        layout: 'radio',
+        list: ['Vitalis', 'Entropis', 'Balanced'],
+      },
+      ...needsCategory('Deity', 'Aetheric Phenomenon', 'Character Class', 'Character Race', 'Metaphysical Force'),
+    },
+
+    // Optional connections
+    flexibleReferenceArray('relatedFigures', 'Notable Figures or Deities', ['npc']),
+    flexibleReferenceArray('relatedEntities', 'Connected Entities', ['characterRace', 'characterClass', 'item', 'skill']),
+
+    // Visual
+    { name: 'image', title: 'Illustration or Visual', type: 'image', options: { hotspot: true } },
+  ],
+
+  preview: {
+    select: {
+      title: 'title',
+      subtitle: 'mainTagline',
+      media: 'image',
+    },
+    prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: any }) {
+      return {
+        title: title || 'Untitled Lore',
+        subtitle: subtitle || 'No tagline provided',
+        media,
+      }
+    },
+  },
 }
