@@ -16,7 +16,6 @@ import {
     createRadioDropdown,
     checkDropdown,
     needsCategory,
-    flexibleReferenceArray,
   } from '../schemaVariables/schemaVariables'
   
   import {

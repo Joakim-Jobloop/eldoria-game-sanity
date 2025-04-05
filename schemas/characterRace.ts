@@ -55,7 +55,7 @@ export default {
     { name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{ type: 'lore' }] },
 
     // Future expansion
-    flexibleReferenceArray('corruptionForms', 'Corruption Forms', ['monster']),
+    flexibleReferenceArray('corruptionForms', 'Corruption Forms', ['enemy']),
     flexibleReferenceArray('notableFigures', 'Notable Figures', ['npc']),
   ],
 

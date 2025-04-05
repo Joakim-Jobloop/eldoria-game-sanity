@@ -42,7 +42,7 @@ export default {
       name: 'commonEncounters',
       title: 'Common Monster Encounters',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'monster' }] }],
+      of: [{ type: 'reference', to: [{ type: 'enemy' }] }],
     },
     {
       name: 'inhabitants',
