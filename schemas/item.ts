@@ -17,7 +17,7 @@ import {
 
 import { checkDropdown, offensiveStats, defensiveStats, numberDropdown, durabilityValidation, needsCategories } from '../schemaVariables/schemaVariables'
 import { needsCategory } from '../schemaVariables/schemaVariables'
-import { ValidationRule } from '../types/types'
+import { MinMaxRule, ValidationRule } from '../types/types'
 
 export default {
   name: 'item',
@@ -155,8 +155,19 @@ export default {
     // NEW: INVENTORY LOGIC
     checkDropdown('inventoryRole', 'What is this item used for in inventory?', ['Equip', 'Consume', 'Craft', 'Key']),
     checkDropdown('obtainMethods', 'How can this item be obtained?', ['Found', 'Bought', 'Crafted', 'Starter']),
+
+    {
+      name: 'baseValue',
+      title: 'Base Value (Gold)',
+      type: 'number',
+      description: 'Represents the default market value. Buy/sell prices are derived from this.',
+      validation: (Rule: MinMaxRule) =>
+        Rule.min(0).error('Value cannot be negative'),
+    },
   ],
 
+
+  
   preview: {
     select: {
       title: 'name',
