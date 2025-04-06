@@ -122,18 +122,35 @@ export const requiredField = (message: string) => (Rule: ValidationRule) =>
 
 //* this code is suppose to be for any amount of params, for main categories
 export const needsCategory = (...categories: string[]) => ({
-  hidden: ({ parent }: { parent?: { category?: string } }) =>
-    !parent?.category ||
-    !categories.includes(parent.category.toLowerCase().replace(/\s+/g, '_')),
+  hidden: ({ parent }: { parent?: { category?: unknown } }) => {
+    const category = parent?.category
+
+    if (!category) return true
+
+    if (Array.isArray(category)) {
+      return !category
+        .map((c) => String(c).toLowerCase())
+        .some((val) => categories.includes(val))
+    }
+
+    return !categories.includes(String(category).toLowerCase())
+  },
 })
 
 //* this code is used for one main and one sub category
 export const needsCategories = (category: string, subCategory: string) => ({
-  hidden: ({parent}: {parent?: {category?: string[]; subCategory?: string[]}}) => {
-    if (!parent || !parent.category || !parent.subCategory) return true
-    const hasCategory = parent.category.map((c) => c.toLowerCase()).includes(category.toLowerCase())
-    const hasSubCategory = parent.subCategory.map((s) => s.toLowerCase()).includes(subCategory.toLowerCase())
-    return !(hasCategory && hasSubCategory)
+  hidden: ({ parent }: { parent?: { category?: string | string[]; subCategory?: string | string[] } }) => {
+    if (!parent?.category || !parent?.subCategory) return true
+
+    const categoryMatches = Array.isArray(parent.category)
+      ? parent.category.map(c => c.toLowerCase()).includes(category.toLowerCase())
+      : parent.category.toLowerCase() === category.toLowerCase()
+
+    const subCategoryMatches = Array.isArray(parent.subCategory)
+      ? parent.subCategory.map(s => s.toLowerCase()).includes(subCategory.toLowerCase())
+      : parent.subCategory.toLowerCase() === subCategory.toLowerCase()
+
+    return !(categoryMatches && subCategoryMatches)
   },
 })
 
