@@ -22,27 +22,33 @@ import {
   durabilityValidation,
   needsCategories,
   needsCategory,
+  DefenceArray,
 } from '../schemaVariables/schemaVariables'
-import { MinMaxRule, ValidationRule } from '../types/types'
+import {MinMaxRule, ValidationRule} from '../types/types'
 
 export default {
   name: 'item',
   title: 'Item',
   type: 'document',
   fields: [
-    { name: 'name', title: 'Name the item', type: 'string', validation: (Rule: ValidationRule) => Rule.required() },
+    {
+      name: 'name',
+      title: 'Name the item',
+      type: 'string',
+      validation: (Rule: ValidationRule) => Rule.required(),
+    },
     {
       name: 'itemID',
       type: 'slug',
       title: 'Item ID',
-      options: { source: 'name', maxLength: 96 },
+      options: {source: 'name', maxLength: 96},
       validation: (Rule: ValidationRule) => Rule.required(),
     },
     {
       name: 'src',
       title: 'What is the source of the image for this item?',
       type: 'image',
-      options: { hotspot: true },
+      options: {hotspot: true},
       validation: (Rule: ValidationRule) => Rule.required(),
     },
     {
@@ -54,7 +60,11 @@ export default {
     },
 
     checkDropdown('category', 'What type of item is it?', dropdownItemCategories),
-    checkDropdown('subCategory', 'Be more specific. What type of item is it?', dropdownItemSubCategories),
+    checkDropdown(
+      'subCategory',
+      'Be more specific. What type of item is it?',
+      dropdownItemSubCategories,
+    ),
     checkDropdown('rarity', 'What is the rarity of this item?', dropdownLootTiers),
 
     // EQUIPPABLES
@@ -66,7 +76,7 @@ export default {
       fields: [
         checkDropdown('armourCategory', 'What armour-class is it?', dropdownArmorCategories),
         checkDropdown('slot', 'Where on the body do you want to equip it?', dropdownArmorSlots),
-        statEffectArray(),
+        DefenceArray(),
       ],
     },
     {
@@ -86,7 +96,11 @@ export default {
       type: 'object',
       ...needsCategories('equippable', 'jewelry'),
       fields: [
-        checkDropdown('jewelryCategory', 'What type of jewelry is this?', dropdownJewelryCategories),
+        checkDropdown(
+          'jewelryCategory',
+          'What type of jewelry is this?',
+          dropdownJewelryCategories,
+        ),
         checkDropdown('slot', 'Where on the body do you want to equip it?', dropdownJewelrySlots),
         statEffectArray(),
       ],
@@ -99,7 +113,11 @@ export default {
       type: 'object',
       ...needsCategories('consumable', 'potion'),
       fields: [
-        checkDropdown('effectCategory', 'What type of effect does this potion give?', dropdownConsumableEffects),
+        checkDropdown(
+          'effectCategory',
+          'What type of effect does this potion give?',
+          dropdownConsumableEffects,
+        ),
         statEffectArray('statEffects', 'Stat Effects'),
       ],
     },
@@ -109,7 +127,11 @@ export default {
       type: 'object',
       ...needsCategories('consumable', 'food'),
       fields: [
-        checkDropdown('effectCategory', 'What type of effect does this food have?', dropdownConsumableEffects),
+        checkDropdown(
+          'effectCategory',
+          'What type of effect does this food have?',
+          dropdownConsumableEffects,
+        ),
         statEffectArray('statEffects', 'Stat Effects'),
       ],
     },
@@ -123,8 +145,8 @@ export default {
         {
           type: 'object',
           fields: [
-            { name: 'ingredient', title: 'Ingredient', type: 'reference', to: [{ type: 'item' }] },
-            { name: 'amount', title: 'Amount', type: 'number' },
+            {name: 'ingredient', title: 'Ingredient', type: 'reference', to: [{type: 'item'}]},
+            {name: 'amount', title: 'Amount', type: 'number'},
           ],
           preview: {
             select: {
@@ -132,8 +154,8 @@ export default {
               subtitle: 'amount',
               media: 'ingredient.src',
             },
-            prepare({ title, subtitle, media }: { title: string; subtitle: string; media: any }) {
-              return { title, subtitle: `Amount: ${subtitle}`, media }
+            prepare({title, subtitle, media}: {title: string; subtitle: string; media: any}) {
+              return {title, subtitle: `Amount: ${subtitle}`, media}
             },
           },
         },
@@ -150,24 +172,32 @@ export default {
     },
 
     // NEW: INVENTORY LOGIC
-    checkDropdown('inventoryRole', 'What is this item used for in inventory?', ['Equip', 'Consume', 'Craft', 'Key']),
-    checkDropdown('obtainMethods', 'How can this item be obtained?', ['Found', 'Bought', 'Crafted', 'Starter']),
+    checkDropdown('inventoryRole', 'What is this item used for in inventory?', [
+      'Equip',
+      'Consume',
+      'Craft',
+      'Key',
+    ]),
+    checkDropdown('obtainMethods', 'How can this item be obtained?', [
+      'Found',
+      'Bought',
+      'Crafted',
+      'Starter',
+    ]),
 
     {
       name: 'baseGoldValue',
       title: 'Base Value (Gold)',
       type: 'number',
       description: 'Represents the default market value. Buy/sell prices are derived from this.',
-      validation: (Rule: MinMaxRule) =>
-        Rule.min(0).error('Value cannot be negative'),
+      validation: (Rule: MinMaxRule) => Rule.min(0).error('Value cannot be negative'),
     },
     {
       name: 'baseGemValue',
       title: 'Base Value (Gem)',
       type: 'number',
       description: 'Represents the default market value. Buy/sell prices are derived from this.',
-      validation: (Rule: MinMaxRule) =>
-        Rule.min(0).error('Value cannot be negative'),
+      validation: (Rule: MinMaxRule) => Rule.min(0).error('Value cannot be negative'),
     },
   ],
 
@@ -177,7 +207,7 @@ export default {
       media: 'src',
       subtitle: 'category',
     },
-    prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: any }) {
+    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
       return {
         title: title || 'Unnamed Item',
         subtitle: Array.isArray(subtitle) ? subtitle.join(', ') : subtitle || 'No category',
