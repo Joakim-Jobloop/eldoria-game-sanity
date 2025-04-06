@@ -157,8 +157,16 @@ export default {
     checkDropdown('obtainMethods', 'How can this item be obtained?', ['Found', 'Bought', 'Crafted', 'Starter']),
 
     {
-      name: 'baseValue',
+      name: 'baseGoldValue',
       title: 'Base Value (Gold)',
+      type: 'number',
+      description: 'Represents the default market value. Buy/sell prices are derived from this.',
+      validation: (Rule: MinMaxRule) =>
+        Rule.min(0).error('Value cannot be negative'),
+    },
+    {
+      name: 'baseGemValue',
+      title: 'Base Value (Gem)',
       type: 'number',
       description: 'Represents the default market value. Buy/sell prices are derived from this.',
       validation: (Rule: MinMaxRule) =>
