@@ -155,7 +155,7 @@ export const dropdownSkillCategories = formatToDropdownOptions(skillCategories)
 const targetTypes = ['Self', 'Ally', 'Enemy', 'Area', 'Group', 'All']
 export const dropdownTargetTypes = formatToDropdownOptions(targetTypes)
 
-const aetherAlignments = ['Vitalis', 'Vitalis/Balanced', 'Balanced', 'Entropis/Balanced', 'Entropis', 'Aether', 'Antum']
+const aetherAlignments = ['Vitalis', 'Vitalis/Balanced', 'Balanced', 'Entropis/Balanced', 'Entropis', 'Aether', 'Unstable', 'Antum']
 export const dropdownAetherAlignments = formatToDropdownOptions(aetherAlignments)
 
 // ========== Quest Metadata ==========

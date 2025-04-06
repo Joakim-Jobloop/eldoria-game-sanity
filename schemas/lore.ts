@@ -40,7 +40,8 @@ export default {
         'class',
         'aetheric_phenomenon',
         'metaphysical_force',
-        'Race',
+        'race',
+        'artifact'
       ),
     },
     {
@@ -59,32 +60,28 @@ export default {
       name: 'myth',
       title: 'Myth or Legend',
       type: 'text',
-      ...needsCategory('deity', 'historical_event', 'race', 'class'),
+      ...needsCategory('deity', 'historical_event', 'race', 'class', 'artifact'),
     },
     {
       name: 'natureAndTraits',
       title: 'Nature and Traits',
       type: 'text',
-      ...needsCategory('deity', 'race', 'class', 'metaphysical_force'),
+      ...needsCategory('deity', 'race', 'class', 'metaphysical_force', 'artifact'),
     },
     {
-      name: 'uniqueArtifact',
-      title: 'Unique Artifact',
-      type: 'text',
-      ...needsCategory('artifact', 'deity', 'class'),
+      name: 'associatedArtifacts',
+      title: 'Associated Artifacts or Structures',
+      type: 'array',
+      of: [
+        { type: 'reference', to: [{ type: 'item' }, { type: 'location' }] }
+      ],
+      ...needsCategory('artifact', 'deity', 'class', 'race', 'location'),
     },
     flexibleReferenceArray('faction', 'Known Faction or Sect', ['faction']),
   
-    {
-      ...createRadioDropdown('aetherAlignment', 'Aether Alignment', dropdownAetherAlignments),
-      ...needsCategory(
-        'deity',
-        'aetheric_phenomenon',
-        'class',
-        'race',
-        'metaphysical_force'
-      ),
-    },
+    
+    createRadioDropdown('aetherAlignment', 'Aether Alignment', dropdownAetherAlignments),
+ 
 
     // Optional connections
     flexibleReferenceArray('relatedFigures', 'Notable Figures or Deities', ['npc']),

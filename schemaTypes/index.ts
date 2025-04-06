@@ -9,6 +9,7 @@ import quest from '../schemas/quest'
 import skill from '../schemas/skill'
 import enemy from '../schemas/enemy'
 import faction from '../schemas/faction'
+import structure from '../schemas/structure'
 
 export const schemaTypes = [
   item,
@@ -22,4 +23,5 @@ export const schemaTypes = [
   skill,
   enemy,
   faction,
+  structure
 ]
