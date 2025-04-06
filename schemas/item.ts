@@ -9,14 +9,20 @@ import {
   dropdownWeaponCategories,
   dropdownJewelryCategories,
   dropdownConsumableEffects,
-  dropdownAllStats,
   dropdownWeaponSlots,
   dropdownArmorSlots,
   dropdownJewelrySlots,
+  dropdownLootTiers,
 } from '../fundamentals/fundamentals'
 
-import { checkDropdown, offensiveStats, defensiveStats, numberDropdown, durabilityValidation, needsCategories } from '../schemaVariables/schemaVariables'
-import { needsCategory } from '../schemaVariables/schemaVariables'
+import {
+  checkDropdown,
+  damageRangeArray,
+  statEffectArray,
+  durabilityValidation,
+  needsCategories,
+  needsCategory,
+} from '../schemaVariables/schemaVariables'
 import { MinMaxRule, ValidationRule } from '../types/types'
 
 export default {
@@ -49,6 +55,7 @@ export default {
 
     checkDropdown('category', 'What type of item is it?', dropdownItemCategories),
     checkDropdown('subCategory', 'Be more specific. What type of item is it?', dropdownItemSubCategories),
+    checkDropdown('rarity', 'What is the rarity of this item?', dropdownLootTiers),
 
     // EQUIPPABLES
     {
@@ -59,7 +66,7 @@ export default {
       fields: [
         checkDropdown('armourCategory', 'What armour-class is it?', dropdownArmorCategories),
         checkDropdown('slot', 'Where on the body do you want to equip it?', dropdownArmorSlots),
-        defensiveStats(),
+        statEffectArray(),
       ],
     },
     {
@@ -70,7 +77,7 @@ export default {
       fields: [
         checkDropdown('weaponCategory', 'What type of weapon is it?', dropdownWeaponCategories),
         checkDropdown('slot', 'In which hand do you want to equip it?', dropdownWeaponSlots),
-        offensiveStats(),
+        damageRangeArray(),
       ],
     },
     {
@@ -81,7 +88,7 @@ export default {
       fields: [
         checkDropdown('jewelryCategory', 'What type of jewelry is this?', dropdownJewelryCategories),
         checkDropdown('slot', 'Where on the body do you want to equip it?', dropdownJewelrySlots),
-        defensiveStats(),
+        statEffectArray(),
       ],
     },
 
@@ -93,15 +100,7 @@ export default {
       ...needsCategories('consumable', 'potion'),
       fields: [
         checkDropdown('effectCategory', 'What type of effect does this potion give?', dropdownConsumableEffects),
-        {
-          name: 'affectedStat',
-          title: 'What stat(s) does this affect?',
-          type: 'array',
-          of: [{ type: 'string' }],
-          options: { layout: 'grid', list: dropdownAllStats },
-        },
-        { name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number' },
-        { name: 'duration', title: 'How long does it last?', type: 'number' },
+        statEffectArray('statEffects', 'Stat Effects'),
       ],
     },
     {
@@ -111,9 +110,7 @@ export default {
       ...needsCategories('consumable', 'food'),
       fields: [
         checkDropdown('effectCategory', 'What type of effect does this food have?', dropdownConsumableEffects),
-        numberDropdown('affectedStat', 'What stats does this affect?', dropdownAllStats.map((s) => s.title), false),
-        { name: 'effectAmount', title: 'How much does it affect the stat?', type: 'number' },
-        { name: 'duration', title: 'How long does this effect last?', type: 'number' },
+        statEffectArray('statEffects', 'Stat Effects'),
       ],
     },
 
@@ -174,8 +171,6 @@ export default {
     },
   ],
 
-
-  
   preview: {
     select: {
       title: 'name',

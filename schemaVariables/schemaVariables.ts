@@ -2,7 +2,7 @@
 // schemaVariables.ts
 // =======================
 
-import { allDamageTypes } from '../fundamentals/fundamentals';
+import { allDamageTypes, allStats } from '../fundamentals/fundamentals';
 import {MinMaxRule, SumValidationRule, ValidationRule} from '../types/types'
 import { formatToDropdownOptions } from '../utils/formatter';
 
@@ -68,39 +68,67 @@ export const numberDropdown = (
 export const durabilityValidation = (Rule: MinMaxRule) =>
   Rule.min(1).max(999).error('Durability must be between 1 and 999')
 
-export const offensiveStats = () => ({
-  name: 'damage',
-  title: 'Set the damage for the weapon',
-  type: 'object',
-  fields: allDamageTypes.flatMap((stat) => {
-    const base = stat.toLowerCase().replace(/\s+/g, '_')
-    return [
-      {name: `${base}_min`, title: 'Min', type: 'number', fieldset: base},
-      {name: `${base}_max`, title: 'Max', type: 'number', fieldset: base},
-    ]
-  }),
-  fieldsets: allDamageTypes.map((stat) => ({
-    name: stat.toLowerCase().replace(/\s+/g, '_'),
-    title: stat,
-    options: {columns: 2},
-  })),
-  validation: (Rule: ValidationRule) =>
-    Rule.required().error('Weapon must have at least one damage type'),
+export const damageRangeArray = (name = 'damageRanges', title = 'Damage Ranges') => ({
+  name,
+  title,
+  type: 'array',
+  of: [
+    {
+      type: 'object',
+      fields: [
+        {
+          name: 'type',
+          title: 'Damage Type',
+          type: 'string',
+          options: {
+            layout: 'dropdown',
+            list: formatToDropdownOptions(allDamageTypes),
+          },
+        },
+        { name: 'min', title: 'Min Damage', type: 'number' },
+        { name: 'max', title: 'Max Damage', type: 'number' },
+        {
+          name: 'duration',
+          title: 'Duration (optional)',
+          type: 'number',
+          description: 'Optional duration in turns/seconds if this damage type lingers.',
+        },
+      ],
+    },
+  ],
 })
 
-export const defensiveStats = () => ({
-  name: 'defenses',
-  title: 'Set the defenses for the item',
-  type: 'object',
-  fieldsets: [{name: 'defenseStats', title: 'Defense Stats', options: {columns: 3}}],
-  fields: allDamageTypes.map((stat) => ({
-    name: stat.toLowerCase().replace(/\s+/g, '_'),
-    title: stat,
-    type: 'number',
-    fieldset: 'defenseStats',
-  })),
-  validation: (Rule: ValidationRule) =>
-    Rule.required().error('Item must have at least one defense value'),
+export const statEffectArray = (name = 'statEffects', title = 'Stat Effects') => ({
+  name,
+  title,
+  type: 'array',
+  of: [
+    {
+      type: 'object',
+      fields: [
+        {
+          name: 'stat',
+          title: 'Affected Stat',
+          type: 'string',
+          options: {
+            layout: 'dropdown',
+            list: formatToDropdownOptions(allStats),
+          },
+        },
+        {
+          name: 'amount',
+          title: 'Effect Amount',
+          type: 'number',
+        },
+        {
+          name: 'duration',
+          title: 'Duration (optional)',
+          type: 'number',
+          description: 'How long this effect lasts in turns/seconds.',
+        },
+      ],
+    },
+  ],
 })
 
 export const flexibleReferenceArray = (name: string, title: string, types: string[]) => ({
