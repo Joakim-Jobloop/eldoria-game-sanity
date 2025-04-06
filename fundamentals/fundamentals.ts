@@ -19,7 +19,7 @@ export const secondaryStats = [
 ]
 export const tertiaryStats = ['Critical Chance', 'Critical Damage', 'Accuracy', 'Evasion']
 export const conditions = ['Night Vision', 'Stealth']
-export const elementalTypes = ['EmberVeil', 'Voidrime', 'Shatterlight', 'Entropis', 'Vitalis', 'Aether']
+export const elementalTypes = ['Ember', 'Rime', 'Shatterlight', 'Entropis', 'Vitalis', 'Aether']
 export const physicalTypes = ['Slashing', 'Piercing', 'Blunt']
 export const traitTypes = ['Offensive', 'Defensive', 'Utility', 'Hybrid', 'Unique', 'Support', 'Aura']
 
