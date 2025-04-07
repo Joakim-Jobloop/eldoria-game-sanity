@@ -3,7 +3,12 @@
 // =======================
 
 import {allDamageTypes, allStats} from '../fundamentals/fundamentals'
-import {MinMaxRule, SumValidationRule, ValidationRule} from '../types/types'
+import {
+  MinMaxRule,
+  SumValidationRule,
+  validateUniqueReferences,
+  ValidationRule,
+} from '../types/types'
 import {formatToDropdownOptions} from '../utils/formatter'
 
 // Reusable dropdown formatter for stats, items, traits, etc.
@@ -101,7 +106,17 @@ export const damageRangeArray = (name = 'damageRanges', title = 'Damage Ranges')
           max: 'max',
           duration: 'duration',
         },
-        prepare({type, min, max, duration} : {type?: string; min?: number; max?: number; duration?: number}) {
+        prepare({
+          type,
+          min,
+          max,
+          duration,
+        }: {
+          type?: string
+          min?: number
+          max?: number
+          duration?: number
+        }) {
           return {
             title: type || 'Damage Type',
             subtitle: `Min: ${min ?? 0} / Max: ${max ?? 0}${duration ? ` / Duration: ${duration}` : ''}`,
@@ -275,3 +290,50 @@ export const validateTotalSum =
       }
       return true
     })
+
+export const filteredItemReferenceArray = (
+  name: string,
+  title: string,
+  category?: string,
+  subCategory?: string,
+) => {
+  const filterClauses = []
+  const filterParams: Record<string, string> = {}
+
+  if (category) {
+    filterClauses.push('$category in category')
+    filterParams.category = category
+  }
+
+  if (subCategory) {
+    filterClauses.push('$subCategory in subCategory')
+    filterParams.subCategory = subCategory
+  }
+
+  const options =
+    filterClauses.length > 0
+      ? {
+          filter: filterClauses.join(' && '),
+          filterParams,
+        }
+      : undefined
+
+  return {
+    name,
+    title,
+    type: 'array',
+    of: [
+      {
+        type: 'reference',
+        to: [{type: 'item'}],
+        options,
+      },
+    ],
+    options: {
+      layout: 'grid',
+    },
+    validation: validateUniqueReferences(
+      `You already added this ${subCategory || category || 'item'}.`,
+    ),
+  }
+}

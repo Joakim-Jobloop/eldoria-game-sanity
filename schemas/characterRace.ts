@@ -2,10 +2,7 @@
 // schemas/characterRace.ts
 // ===========================
 
-import {
-  dropdownCharacterRaces,
-  dropdownPrimaryStats,
-} from '../fundamentals/fundamentals'
+import {dropdownCharacterRaces, dropdownPrimaryStats} from '../fundamentals/fundamentals'
 
 import {
   validateTotalSum,
@@ -13,15 +10,15 @@ import {
   flexibleReferenceArray,
 } from '../schemaVariables/schemaVariables'
 
-import { AttributeRules } from '../types/types'
+import {AttributeRules} from '../types/types'
 
 export default {
   name: 'characterRace',
   title: 'Character Race',
   type: 'document',
   fieldsets: [
-    { name: 'starterStats', title: 'Starter Stats (should sum to 15)', options: { columns: 3 } },
-    { name: 'lore', title: 'Lore Fields', options: { columns: 2 } },
+    {name: 'starterStats', title: 'Starter Stats (should sum to 15)', options: {columns: 3}},
+    {name: 'lore', title: 'Lore Fields', options: {columns: 2}},
   ],
   fields: [
     // Dropdown for race selection
@@ -38,7 +35,8 @@ export default {
         name: stat.value.replace(/\s+/g, '_').toLowerCase(),
         title: stat.title,
         type: 'number',
-        validation: (Rule: AttributeRules) => Rule.min(1).max(10).error(`${stat.title} must be between 1 and 10`),
+        validation: (Rule: AttributeRules) =>
+          Rule.min(1).max(10).error(`${stat.title} must be between 1 and 10`),
       })),
     },
 
@@ -46,16 +44,16 @@ export default {
     flexibleReferenceArray('raceTraits', 'Race Traits', ['trait']),
 
     // Visuals
-    { name: 'logo', title: 'Race Logo', type: 'image', options: { hotspot: true } },
-    { name: 'portraitMale', title: 'Male Portrait', type: 'image', options: { hotspot: true } },
-    { name: 'portraitFemale', title: 'Female Portrait', type: 'image', options: { hotspot: true } },
-    { name: 'portraitOther', title: 'Other Portrait', type: 'image', options: { hotspot: true } },
+    {name: 'logo', title: 'Race Logo', type: 'image', options: {hotspot: true}},
+    {name: 'portraitMale', title: 'Male Portrait', type: 'image', options: {hotspot: true}},
+    {name: 'portraitFemale', title: 'Female Portrait', type: 'image', options: {hotspot: true}},
+    {name: 'portraitOther', title: 'Other Portrait', type: 'image', options: {hotspot: true}},
 
     // Lore Reference
-    { name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{ type: 'lore' }] },
+    {name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{type: 'lore'}]},
 
     // Future expansion
-    flexibleReferenceArray('corruptionForms', 'Corruption Forms', ['enemy']),
+    flexibleReferenceArray('corruptionForms', 'Corruption Forms', ['npc']),
     flexibleReferenceArray('notableFigures', 'Notable Figures', ['npc']),
   ],
 
@@ -65,7 +63,7 @@ export default {
       description: 'mainTagline',
       media: 'portraitMale',
     },
-    prepare({ title, description, media }: { title?: string; description?: string; media?: any }) {
+    prepare({title, description, media}: {title?: string; description?: string; media?: any}) {
       return {
         title: title || 'Unnamed Race',
         description: description ? description.slice(0, 100) : 'No tagline provided',

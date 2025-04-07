@@ -7,7 +7,7 @@ import location from '../schemas/location'
 import npc from '../schemas/npc'
 import quest from '../schemas/quest'
 import skill from '../schemas/skill'
-import enemy from '../schemas/enemy'
+// import enemy from '../schemas/enemy'
 import faction from '../schemas/faction'
 import structure from '../schemas/structure'
 import gameData from '../schemas/gameData/gameData'
@@ -22,8 +22,8 @@ export const schemaTypes = [
   npc,
   quest,
   skill,
-  enemy,
+  // enemy,
   faction,
   structure,
-  gameData
+  gameData,
 ]

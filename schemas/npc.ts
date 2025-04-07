@@ -3,75 +3,195 @@
 // ===========================
 
 import {
-    dropdownNpcRoleTypes,
-    dropdownCharacterRaces,
-    dropdownCharacterClasses,
-  } from '../fundamentals/fundamentals'
-  
-  import {
-    createRadioDropdown,
-    checkDropdown,
-    needsRoleType,
-  } from '../schemaVariables/schemaVariables'
-  
-  import { ValidationRule } from '../types/types'
-  
+  dropdownAetherAlignments,
+  dropdownCharacterRaces,
+  dropdownCharacterClasses,
+  dropdownNpcRoleTypes,
+  dropdownElementalTypes,
+  dropdownPhysicalTypes,
+  dropdownEnemyTypes,
+  dropdownEnemyAggroType,
+  dropdownLootTiers,
+  dropdownCombatTagOptions,
+} from '../fundamentals/fundamentals'
 
-  
-  export default {
-    name: 'npc',
-    title: 'NPC (Non-Player Character)',
-    type: 'document',
-    fields: [
-      { name: 'name', title: 'Full Name or Identifier', type: 'string', validation: (Rule: ValidationRule) => Rule.required() },
-      { name: 'slug', title: 'Slug / ID', type: 'slug', options: { source: 'name' }, validation: (Rule: ValidationRule) => Rule.required() },
-      { name: 'portrait', title: 'Portrait', type: 'image', options: { hotspot: true } },
-  
-      // Core Role Type
-      createRadioDropdown('roleType', 'What type of NPC is this?', dropdownNpcRoleTypes),
-  
-      // Optional Lore Link
-      { name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{ type: 'lore' }] },
-  
-      // Dialogue
-      { name: 'dialogueKey', title: 'Dialogue Trigger Key', type: 'string', description: 'Used to fetch NPC dialogue in frontend systems' },
-  
-      // Inventory / Trades (only for Merchants)
-      {
-        name: 'inventory',
-        title: 'Trade Inventory (if Merchant)',
-        type: 'array',
-        of: [{ type: 'reference', to: [{ type: 'item' }] }],
-        ...needsRoleType('Merchant'),
-      },
-  
-      // Quest hook
-      {
-        name: 'questReference',
-        title: 'Associated Quest',
-        type: 'reference',
-        to: [{ type: 'quest' }],
-        // ...needsRoleType('Guide', 'Elite Figure', 'Enemy-Turned', 'Scholar', 'Healer'),
-      },
-  
-      // Optional Class and Race Tags
-      checkDropdown('raceTags', 'What race(s) apply?', dropdownCharacterRaces),
-      checkDropdown('classTags', 'What class(es) relate to this NPC?', dropdownCharacterClasses),
-    ],
-  
-    preview: {
-      select: {
-        title: 'name',
-        subtitle: 'roleType',
-        media: 'portrait',
-      },
-      prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: any }) {
-        return {
-          title: title || 'Unnamed NPC',
-          subtitle: subtitle || 'No role defined',
-          media,
-        }
-      },
+import {createRadioDropdown, checkDropdown, needsRoleType} from '../schemaVariables/schemaVariables'
+
+import {
+  skillOffensiveStats,
+  skillDefensiveStats,
+  skillStatEffects,
+} from '../schemaVariables/skills/skillSchemaVariables'
+
+import {MinMaxRule, ValidationRule} from '../types/types'
+
+export default {
+  name: 'npc',
+  title: 'NPC (Friendly or Hostile)',
+  type: 'document',
+  fields: [
+    {
+      name: 'name',
+      title: 'Name',
+      type: 'string',
+      validation: (Rule: ValidationRule) => Rule.required(),
     },
-  }
-  
+    {
+      name: 'slug',
+      title: 'Slug / ID',
+      type: 'slug',
+      options: {source: 'name'},
+      validation: (Rule: ValidationRule) => Rule.required(),
+    },
+    {name: 'portrait', title: 'Portrait / Illustration', type: 'image', options: {hotspot: true}},
+    {name: 'description', title: 'Description', type: 'text'},
+
+    createRadioDropdown('roleType', 'What type of NPC is this?', dropdownNpcRoleTypes),
+    {
+      name: 'isHostile',
+      title: 'Is Hostile?',
+      type: 'boolean',
+      description: 'Enable enemy-specific fields if true',
+    },
+    {name: 'isBoss', title: 'Is This a Boss?', type: 'boolean'},
+
+    // Common Lore
+    {name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{type: 'lore'}]},
+    {name: 'dialogueKey', title: 'Dialogue Key (for frontend)', type: 'string'},
+
+    // Inventory (Merchants only)
+    {
+      name: 'inventory',
+      title: 'Merchant Inventory',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'item'}]}],
+      ...needsRoleType('Merchant'),
+    },
+
+    // Quest
+    {
+      name: 'questReference',
+      title: 'Associated Quest',
+      type: 'reference',
+      to: [{type: 'quest'}],
+    },
+
+    // Tags
+    checkDropdown('raceTags', 'What race(s) apply?', dropdownCharacterRaces),
+    checkDropdown('classTags', 'What class(es) relate to this NPC?', dropdownCharacterClasses),
+
+    // Hostile (Enemy-specific)
+    {
+      name: 'enemyType',
+      title: 'Enemy Type',
+      type: 'string',
+      options: {
+        list: dropdownEnemyTypes,
+        layout: 'dropdown',
+      },
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    createRadioDropdown('aetherAlignment', 'Aetheric Alignment', dropdownAetherAlignments),
+    {
+      name: 'level',
+      title: 'Level',
+      type: 'number',
+      validation: (Rule: MinMaxRule) => Rule.min(1).max(100),
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    {
+      name: 'health',
+      title: 'Health Points',
+      type: 'number',
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    {
+      name: 'speed',
+      title: 'Speed / Turn Priority',
+      type: 'number',
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+
+    checkDropdown('elementalType', 'Elemental Affinity (if any)', dropdownElementalTypes),
+    checkDropdown('physicalType', 'Physical Profile (if any)', dropdownPhysicalTypes),
+
+    {
+      ...skillOffensiveStats(),
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    {
+      ...skillDefensiveStats(),
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    {
+      ...skillStatEffects(),
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+
+    createRadioDropdown('combatType', 'Combat Type', dropdownCombatTagOptions),
+    createRadioDropdown('aggroType', 'Aggression Type', dropdownEnemyAggroType),
+    createRadioDropdown('lootTier', 'Loot Tier', dropdownLootTiers),
+
+    {
+      name: 'skillSet',
+      title: 'Skills',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'skill'}]}],
+    },
+    {
+      name: 'dangerRating',
+      title: 'Danger Rating (1–5)',
+      type: 'number',
+      validation: (Rule: MinMaxRule) => Rule.min(1).max(5),
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    {
+      name: 'canBeTamed',
+      title: 'Can Be Tamed?',
+      type: 'boolean',
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    {
+      name: 'faction',
+      title: 'Faction or Sect',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'faction'}]}],
+    },
+    {
+      name: 'lootTable',
+      title: 'Loot Table',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'item'}]}],
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    {
+      name: 'spawnLocations',
+      title: 'Spawn Locations',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'location'}]}],
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+    {
+      name: 'corruptedFormOf',
+      title: 'Corrupted Form of Race',
+      type: 'reference',
+      to: [{type: 'characterRace'}],
+      hidden: ({parent}: any) => !parent?.isHostile,
+    },
+  ],
+
+  preview: {
+    select: {
+      title: 'name',
+      subtitle: 'roleType',
+      media: 'portrait',
+    },
+    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+      return {
+        title: title || 'Unnamed NPC',
+        subtitle: subtitle || 'No role defined',
+        media,
+      }
+    },
+  },
+}
