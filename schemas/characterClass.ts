@@ -23,7 +23,7 @@ export default {
   fields: [
     // Dropdown for class name (radio)
     createRadioDropdown(
-      'classCategory',
+      'category',
       'What Character Class Type is this?',
       dropdownCharacterClasses,
     ),
@@ -100,7 +100,7 @@ export default {
 
   preview: {
     select: {
-      title: 'classCategory',
+      title: 'category',
       description: 'mainTagline',
       media: 'portrait',
     },

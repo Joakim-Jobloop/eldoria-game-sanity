@@ -291,49 +291,54 @@ export const validateTotalSum =
       return true
     })
 
-export const filteredItemReferenceArray = (
-  name: string,
-  title: string,
-  category?: string,
-  subCategory?: string,
-) => {
-  const filterClauses = []
-  const filterParams: Record<string, string> = {}
-
-  if (category) {
-    filterClauses.push('$category in category')
-    filterParams.category = category
-  }
-
-  if (subCategory) {
-    filterClauses.push('$subCategory in subCategory')
-    filterParams.subCategory = subCategory
-  }
-
-  const options =
-    filterClauses.length > 0
-      ? {
-          filter: filterClauses.join(' && '),
-          filterParams,
-        }
-      : undefined
-
-  return {
-    name,
-    title,
-    type: 'array',
-    of: [
-      {
-        type: 'reference',
-        to: [{type: 'item'}],
-        options,
-      },
-    ],
-    options: {
-      layout: 'grid',
-    },
-    validation: validateUniqueReferences(
-      `You already added this ${subCategory || category || 'item'}.`,
-    ),
-  }
-}
+    export const filteredItemReferenceArray = (
+      schema: string,
+      name: string,
+      title: string,
+      category?: string,
+      subCategory?: string
+  
+    ) => {
+      const filterClauses: string[] = []
+      const filterParams: Record<string, string> = {}
+    
+      if (category) {
+        filterClauses.push('$category in category')
+        filterParams.category = category
+      }
+    
+      if (subCategory) {
+        filterClauses.push('$subCategory in subCategory')
+        filterParams.subCategory = subCategory
+      }
+    
+      const options =
+        filterClauses.length > 0
+          ? {
+              filter: filterClauses.join(' && '),
+              filterParams,
+            }
+          : {}
+    
+      return {
+        name,
+        title,
+        type: 'array',
+        of: [
+          {
+            type: 'reference',
+            to: [{type: schema}],
+            options,
+          },
+        ],
+        options: {
+          layout: 'grid',
+        },
+        validation: validateUniqueReferences(
+          `You already added this ${
+            subCategory ? `${subCategory} ${category}` : category || 'item'
+          }.`
+        ),
+      }
+    }
+    

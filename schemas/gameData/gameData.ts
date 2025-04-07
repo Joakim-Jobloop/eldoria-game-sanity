@@ -10,11 +10,11 @@ export default {
   type: 'document',
   fields: [
     // ITEM REFERENCES (grouped by category/subcategory, filtered by value and duplication)
-    filteredItemReferenceArray('potions', 'All Potion Items', 'consumable', 'potion'),
-    filteredItemReferenceArray('foodItems', 'All Food Items', 'consumable', 'food'),
-    filteredItemReferenceArray('weapons', 'All Weapons', 'equippable', 'weapon'),
-    filteredItemReferenceArray('armours', 'All Armour Items', 'equippable', 'armour'),
-    filteredItemReferenceArray('jewelry', 'All Jewelry Items', 'equippable', 'jewelry'),
+    filteredItemReferenceArray('item', 'potions', 'All Potion Items', 'consumable', 'potion'),
+    filteredItemReferenceArray('item', 'foodItems', 'All Food Items', 'consumable', 'food'),
+    filteredItemReferenceArray('item', 'weapons', 'All Weapons', 'equippable', 'weapon'),
+    filteredItemReferenceArray('item', 'armours', 'All Armour Items', 'equippable', 'armour'),
+    filteredItemReferenceArray('item', 'jewelry', 'All Jewelry Items', 'equippable', 'jewelry'),
 
     // OTHER CONTENT TYPES (unfiltered)
     {
@@ -29,12 +29,13 @@ export default {
       type: 'array',
       of: [{type: 'reference', to: [{type: 'trait'}]}],
     },
-    {
-      name: 'allClasses',
-      title: 'All Character Classes',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'characterClass'}]}],
-    },
+    // {
+    //   name: 'allClasses',
+    //   title: 'All Character Classes',
+    //   type: 'array',
+    //   of: [{type: 'reference', to: [{type: 'characterClass'}]}],
+    // },
+    filteredItemReferenceArray("characterClass", 'allClasses', 'All Character Classes'),
     {
       name: 'allRaces',
       title: 'All Character Races',
