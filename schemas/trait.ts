@@ -2,45 +2,81 @@
 // schemas/trait.ts
 // ===========================
 
-
-  
-  import { dropdownConditions, dropdownElementalTypes, dropdownPhysicalTypes, dropdownPrimaryStats, dropdownSecondaryStats, dropdownTertiaryStats, dropdownTraitTypes } from '../fundamentals/fundamentals';
 import {
-    createRadioDropdown,
-    numberDropdown,
-  } from '../schemaVariables/schemaVariables'
-  
-  export default {
-    name: 'trait',
-    title: 'Trait',
-    type: 'document',
-    fields: [
-      { name: 'name', title: 'Name of Trait', type: 'string' },
-      { name: 'description', title: 'Description', type: 'text' },
-  
-      // Trait Type (Offensive/Defensive/Utility)
-      createRadioDropdown('traitType', 'What kind of trait is this?', dropdownTraitTypes),
-  
-      // Stat Effects by Category
-      numberDropdown('primaryStatBonuses', 'Primary Stat Bonuses', dropdownPrimaryStats.map((s) => s.title), false),
-      numberDropdown('secondaryStatBonuses', 'Secondary Stat Bonuses', dropdownSecondaryStats.map((s) => s.title), false),
-      numberDropdown('tertiaryStatBonuses', 'Tertiary Stat Bonuses', dropdownTertiaryStats.map((s) => s.title), false),
-      numberDropdown('conditionBonuses', 'Condition Bonuses', dropdownConditions.map((s) => s.title), false),
-      numberDropdown('elementalBonuses', 'Elemental Bonuses', dropdownElementalTypes.map((s) => s.title), false),
-      numberDropdown('physicalBonuses', 'Physical Damage Bonuses', dropdownPhysicalTypes.map((s) => s.title), false),
-    ],
-  
-    preview: {
-      select: {
-        title: 'name',
-        subtitle: 'traitType',
-      },
-      prepare({ title, subtitle }: { title?: string; subtitle?: string }) {
-        return {
-          title: title || 'Unnamed Trait',
-          subtitle: subtitle || 'No type set',
-        }
-      },
+  dropdownTraitTypes,
+  dropdownLootTiers,
+} from '../fundamentals/fundamentals'
+
+import {
+  createRadioDropdown,
+} from '../schemaVariables/schemaVariables'
+
+import {
+  damageRangeArray,
+  DefenceArray,
+  statEffectArray,
+} from '../schemaVariables/schemaVariables'
+
+import { ValidationRule } from '../types/types'
+
+export default {
+  name: 'trait',
+  title: 'Trait',
+  type: 'document',
+  fields: [
+    // Core
+    {
+      name: 'name',
+      title: 'Trait Name',
+      type: 'string',
+      validation: (Rule: ValidationRule) => Rule.required(),
     },
-  }
-  
+    {
+      name: 'slug',
+      title: 'Trait ID',
+      type: 'slug',
+      options: { source: 'name' },
+      validation: (Rule: ValidationRule) => Rule.required(),
+    },
+    {
+      name: 'description',
+      title: 'Long Description',
+      type: 'text',
+      rows: 4,
+    },
+    {
+      name: 'tooltip',
+      title: 'Tooltip (short UI hint)',
+      type: 'string',
+    },
+    {
+      name: 'icon',
+      title: 'Trait Icon',
+      type: 'image',
+      options: { hotspot: true },
+    },
+
+    // Classification
+    createRadioDropdown('traitType', 'Trait Category', dropdownTraitTypes),
+
+    // Effects (flexible stat logic)
+    statEffectArray('statEffects', 'Stat Modifiers'),
+    DefenceArray('defensiveBonuses', 'Defensive Bonuses'),
+    damageRangeArray('bonusDamage', 'Bonus Damage Types'),
+  ],
+
+  preview: {
+    select: {
+      title: 'name',
+      subtitle: 'traitType',
+      media: 'icon',
+    },
+    prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: any }) {
+      return {
+        title: title || 'Unnamed Trait',
+        subtitle: subtitle || 'No category set',
+        media,
+      }
+    },
+  },
+}
