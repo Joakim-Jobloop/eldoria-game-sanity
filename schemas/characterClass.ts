@@ -18,7 +18,7 @@ export default {
   type: 'document',
   fieldsets: [
     {name: 'starterStats', title: 'Starter Stats (should sum to 15)', options: {columns: 3}},
-    {name: 'lore', title: 'Lore Fields', options: {columns: 2}},
+    {name: 'lore', title: 'Lore Fields', options: {columns: 1}},
   ],
   fields: [
     // Dropdown for class name (radio)

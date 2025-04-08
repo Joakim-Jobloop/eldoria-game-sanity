@@ -4,7 +4,6 @@
 
 import {
   dropdownTraitTypes,
-  dropdownLootTiers,
 } from '../fundamentals/fundamentals'
 
 import {
