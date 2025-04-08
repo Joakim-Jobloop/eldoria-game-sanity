@@ -22,11 +22,7 @@ export default {
   ],
   fields: [
     // Dropdown for class name (radio)
-    createRadioDropdown(
-      'category',
-      'What Character Class Type is this?',
-      dropdownCharacterClasses,
-    ),
+    createRadioDropdown('category', 'What Character Class Type is this?', dropdownCharacterClasses),
 
     // Stat block with validation
     {
@@ -101,13 +97,13 @@ export default {
   preview: {
     select: {
       title: 'category',
-      description: 'mainTagline',
+      subtitle: 'mainTagline',
       media: 'portrait',
     },
-    prepare({title, description, media}: {title?: string; description?: string; media?: any}) {
+    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
       return {
         title: title || 'Unnamed Class',
-        description: description?.slice(0, 100) || 'No tagline provided',
+        subtitle: subtitle?.slice(0, 100) || 'No tagline provided',
         media,
       }
     },

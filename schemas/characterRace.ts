@@ -22,7 +22,7 @@ export default {
   ],
   fields: [
     // Dropdown for race selection
-    createRadioDropdown('raceCategory', 'What Character Race is this?', dropdownCharacterRaces),
+    createRadioDropdown('category', 'What Character Race is this?', dropdownCharacterRaces),
 
     // Stat block
     {
@@ -49,6 +49,8 @@ export default {
     {name: 'portraitFemale', title: 'Female Portrait', type: 'image', options: {hotspot: true}},
     {name: 'portraitOther', title: 'Other Portrait', type: 'image', options: {hotspot: true}},
 
+    {name: 'mainTagline', title: 'Main Tagline', type: 'string', fieldset: 'lore'},
+
     // Lore Reference
     {name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{type: 'lore'}]},
 
@@ -59,14 +61,14 @@ export default {
 
   preview: {
     select: {
-      title: 'raceCategory',
-      description: 'mainTagline',
+      title: 'category',
+      subtitle: 'mainTagline',
       media: 'portraitMale',
     },
-    prepare({title, description, media}: {title?: string; description?: string; media?: any}) {
+    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
       return {
-        title: title || 'Unnamed Race',
-        description: description ? description.slice(0, 100) : 'No tagline provided',
+        title: title || 'Unnamed Class',
+        subtitle: subtitle?.slice(0, 100) || 'No tagline provided',
         media,
       }
     },
