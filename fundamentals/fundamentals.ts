@@ -21,7 +21,8 @@ export const tertiaryStats = ['Critical Chance', 'Critical Damage', 'Accuracy', 
 export const conditions = ['Night Vision', 'Stealth']
 export const elementalTypes = ['Ember', 'Rime', 'Shatterlight', 'Entropis', 'Vitalis', 'Aether']
 export const physicalTypes = ['Slashing', 'Piercing', 'Blunt']
-export const traitTypes = ['Offensive', 'Defensive', 'Utility', 'Hybrid', 'Unique', 'Support', 'Aura']
+export const allTraitTypes = ['Offensive', 'Defensive', 'Utility', 'Hybrid', 'Unique', 'Support', 'Aura',"Race","Class", "Item"]
+export const traitTypes = allTraitTypes.filter((t) => t !== 'Race' && t !== 'Class' && t !== 'Item')
 
 export const allStats = Array.from(
   new Set([...primaryStats, ...secondaryStats, ...tertiaryStats, ...elementalTypes, ...conditions])
@@ -196,4 +197,5 @@ export const dropdownAllStats = formatToDropdownOptions(allStats)
 export const dropdownAllDamageTypes = formatToDropdownOptions(allDamageTypes)
 export const dropdownElementalTypes = formatToDropdownOptions(elementalTypes)
 export const dropdownPhysicalTypes = formatToDropdownOptions(physicalTypes)
+export const dropdownAllTraitTypes = formatToDropdownOptions(allTraitTypes)
 export const dropdownTraitTypes = formatToDropdownOptions(traitTypes)

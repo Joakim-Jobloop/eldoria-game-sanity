@@ -2,28 +2,24 @@
 // schemas/trait.ts
 // ===========================
 
-import {
-  dropdownTraitTypes,
-} from '../fundamentals/fundamentals'
+import {dropdownAllTraitTypes, dropdownTraitTypes} from '../fundamentals/fundamentals'
 
 import {
   createRadioDropdown,
-} from '../schemaVariables/schemaVariables'
-
-import {
-  damageRangeArray,
-  DefenceArray,
+  needsCategory,
   statEffectArray,
+  DefenceArray,
+  damageRangeArray,
 } from '../schemaVariables/schemaVariables'
 
-import { ValidationRule } from '../types/types'
+import {ValidationRule} from '../types/types'
 
 export default {
   name: 'trait',
   title: 'Trait',
   type: 'document',
   fields: [
-    // Core
+    // Core Info
     {
       name: 'name',
       title: 'Trait Name',
@@ -34,7 +30,7 @@ export default {
       name: 'slug',
       title: 'Trait ID',
       type: 'slug',
-      options: { source: 'name' },
+      options: {source: 'name'},
       validation: (Rule: ValidationRule) => Rule.required(),
     },
     {
@@ -52,16 +48,56 @@ export default {
       name: 'icon',
       title: 'Trait Icon',
       type: 'image',
-      options: { hotspot: true },
+      options: {hotspot: true},
     },
+    // Global Trait Type (optional — if you want an overarching tag for sorting)
+    createRadioDropdown('traitType', 'Overall Trait Category', dropdownAllTraitTypes),
 
-    // Classification
-    createRadioDropdown('traitType', 'Trait Category', dropdownTraitTypes),
+    // Modular Effects Array
+    {
+      name: 'effects',
+      title: 'Trait Effects',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            createRadioDropdown('category', 'Effect Type', dropdownTraitTypes),
 
-    // Effects (flexible stat logic)
-    statEffectArray('statEffects', 'Stat Modifiers'),
-    DefenceArray('defensiveBonuses', 'Defensive Bonuses'),
-    damageRangeArray('bonusDamage', 'Bonus Damage Types'),
+            {
+              ...statEffectArray('statEffects', 'Stat Modifiers'),
+              ...needsCategory(
+                'offensive',
+                'support',
+                'utility',
+                'defensive',
+                'unique',
+                'hybrid',
+                'aura',
+              ),
+            },
+            {
+              ...DefenceArray('defensiveBonuses', 'defensive_bonuses'),
+              ...needsCategory('defensive', 'support', 'aura', 'unique', 'hybrid'),
+            },
+            {
+              ...damageRangeArray('bonusDamage', 'Bonus Damage Types'),
+              ...needsCategory('offensive', 'support', 'unique', 'aura', 'hybrid'),
+            },
+          ],
+          preview: {
+            select: {
+              title: 'traitType',
+            },
+            prepare({title}: {title?: string}) {
+              return {
+                title: `Effect: ${title || 'Unknown'}`,
+              }
+            },
+          },
+        },
+      ],
+    },
   ],
 
   preview: {
@@ -70,7 +106,7 @@ export default {
       subtitle: 'traitType',
       media: 'icon',
     },
-    prepare({ title, subtitle, media }: { title?: string; subtitle?: string; media?: any }) {
+    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
       return {
         title: title || 'Unnamed Trait',
         subtitle: subtitle || 'No category set',
