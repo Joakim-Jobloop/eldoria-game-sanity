@@ -2,7 +2,7 @@
 // schemas/trait.ts
 // ===========================
 
-import {dropdownAllTraitTypes, dropdownTraitTypes} from '../fundamentals/fundamentals'
+import { dropdownAllTraitTypes, dropdownTraitTypes } from '../fundamentals/fundamentals'
 
 import {
   createRadioDropdown,
@@ -12,7 +12,7 @@ import {
   damageRangeArray,
 } from '../schemaVariables/schemaVariables'
 
-import {ValidationRule} from '../types/types'
+import { ValidationRule } from '../types/types'
 
 export default {
   name: 'trait',
@@ -30,7 +30,7 @@ export default {
       name: 'slug',
       title: 'Trait ID',
       type: 'slug',
-      options: {source: 'name'},
+      options: { source: 'name' },
       validation: (Rule: ValidationRule) => Rule.required(),
     },
     {
@@ -48,12 +48,13 @@ export default {
       name: 'icon',
       title: 'Trait Icon',
       type: 'image',
-      options: {hotspot: true},
+      options: { hotspot: true },
     },
-    // Global Trait Type (optional — if you want an overarching tag for sorting)
+
+    // Global Trait Type
     createRadioDropdown('traitType', 'Overall Trait Category', dropdownAllTraitTypes),
 
-    // Modular Effects Array
+    // Modular Effects
     {
       name: 'effects',
       title: 'Trait Effects',
@@ -77,7 +78,7 @@ export default {
               ),
             },
             {
-              ...DefenceArray('defensiveBonuses', 'defensive_bonuses'),
+              ...DefenceArray('defensiveBonuses', 'Defensive Bonuses'),
               ...needsCategory('defensive', 'support', 'aura', 'unique', 'hybrid'),
             },
             {
@@ -87,11 +88,31 @@ export default {
           ],
           preview: {
             select: {
-              title: 'traitType',
+              type: 'category',
+              stats: 'statEffects',
+              dmg: 'bonusDamage',
+              def: 'defensiveBonuses',
             },
-            prepare({title}: {title?: string}) {
+            prepare({ type, stats, dmg, def }: { type?: string; stats?: any[]; dmg?: any[]; def?: any[] }) {
+              const lines: string[] = []
+
+              if (Array.isArray(stats)) {
+                stats.forEach((s) => lines.push(`${s.amount > 0 ? '+' : ''}${s.amount} ${s.stat}`))
+              }
+
+              if (Array.isArray(dmg)) {
+                dmg.forEach((d) =>
+                  lines.push(`+${d.min}-${d.max} ${d.type}${d.duration ? ` (${d.duration}s)` : ''}`)
+                )
+              }
+
+              if (Array.isArray(def)) {
+                def.forEach((d) => lines.push(`DEF: ${d.amount > 0 ? '+' : ''}${d.amount} ${d.stat}`))
+              }
+
               return {
-                title: `Effect: ${title || 'Unknown'}`,
+                title: `Effect: ${type || 'Unknown'}`,
+                subtitle: lines.length ? lines.join(', ') : 'No modifiers defined',
               }
             },
           },
@@ -105,11 +126,35 @@ export default {
       title: 'name',
       subtitle: 'traitType',
       media: 'icon',
+      effects: 'effects',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({ title, subtitle, media, effects }: { title?: string; subtitle?: string; media?: any; effects?: any[] }) {
+      const effectLines: string[] = []
+
+      if (Array.isArray(effects)) {
+        for (const e of effects) {
+          if (Array.isArray(e?.statEffects)) {
+            e.statEffects.forEach((s: any) => effectLines.push(`+${s.amount} ${s.stat}`))
+          }
+          if (Array.isArray(e?.bonusDamage)) {
+            e.bonusDamage.forEach((d: any) =>
+              effectLines.push(`+${d.min}-${d.max} ${d.type}${d.duration ? ` (${d.duration}s)` : ''}`)
+            )
+          }
+          if (Array.isArray(e?.defensiveBonuses)) {
+            e.defensiveBonuses.forEach((d: any) =>
+              effectLines.push(`DEF: +${d.amount} ${d.stat}`)
+            )
+          }
+        }
+      }
+
       return {
         title: title || 'Unnamed Trait',
-        subtitle: subtitle || 'No category set',
+        subtitle:
+          effectLines.length > 0
+            ? effectLines.slice(0, 4).join(', ') + (effectLines.length > 4 ? '...' : '')
+            : subtitle || 'No effects defined',
         media,
       }
     },
