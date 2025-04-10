@@ -16,21 +16,17 @@ export default {
   name: 'characterRace',
   title: 'Character Race',
   type: 'document',
-  fieldsets: [
-    {name: 'starterStats', title: 'Starter Stats (should sum to 15)', options: {columns: 3}},
-    {name: 'lore', title: 'Lore Fields', options: {columns: 2}},
-  ],
   fields: [
-    // Dropdown for race selection
+    // Classification
     createRadioDropdown('category', 'What Character Race is this?', dropdownCharacterRaces),
 
     // Stat block
     {
       name: 'starterAttributes',
-      title: 'Starter Attributes',
+      title: 'Starter Attributes (should sum to 15)',
       type: 'object',
-      fieldset: 'starterStats',
       validation: validateTotalSum(15, 'Starter attributes'),
+      options: {columns: 3},
       fields: dropdownPrimaryStats.map((stat) => ({
         name: stat.value.replace(/\s+/g, '_').toLowerCase(),
         title: stat.title,
@@ -40,7 +36,7 @@ export default {
       })),
     },
 
-    // Traits (future schema connection)
+    // Trait references
     flexibleReferenceArray('raceTraits', 'Race Traits', ['trait']),
 
     // Visuals
@@ -49,12 +45,13 @@ export default {
     {name: 'portraitFemale', title: 'Female Portrait', type: 'image', options: {hotspot: true}},
     {name: 'portraitOther', title: 'Other Portrait', type: 'image', options: {hotspot: true}},
 
-    {name: 'mainTagline', title: 'Main Tagline', type: 'string', fieldset: 'lore'},
+    // Display tagline (will move to lore later)
+    {name: 'mainTagline', title: 'Main Tagline', type: 'string'},
 
-    // Lore Reference
+    // Lore connection
     {name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{type: 'lore'}]},
 
-    // Future expansion
+    // Optional connections
     flexibleReferenceArray('corruptionForms', 'Corruption Forms', ['npc']),
     flexibleReferenceArray('notableFigures', 'Notable Figures', ['npc']),
   ],
@@ -67,7 +64,7 @@ export default {
     },
     prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
       return {
-        title: title || 'Unnamed Class',
+        title: title || 'Unnamed Race',
         subtitle: subtitle?.slice(0, 100) || 'No tagline provided',
         media,
       }

@@ -1,21 +1,27 @@
-// ===========================
-// schemas/location.ts
-// ===========================
-
 import {dropdownAetherAlignments} from '../fundamentals/fundamentals'
-import {createRadioDropdown} from '../schemaVariables/schemaVariables'
+import {
+  createRadioDropdown,
+  checkDropdown,
+  flexibleReferenceArray,
+} from '../schemaVariables/schemaVariables'
 import {ValidationRule} from '../types/types'
 
 export default {
   name: 'location',
   title: 'Location',
   type: 'document',
+  fieldsets: [
+    {name: 'core', title: 'Core Info', options: {columns: 2}},
+    {name: 'visual', title: 'Visual Identity', options: {columns: 2}},
+    {name: 'integration', title: 'Integration & Content', options: {columns: 2}},
+  ],
   fields: [
     {
       name: 'name',
       title: 'Location Name',
       type: 'string',
       validation: (Rule: ValidationRule) => Rule.required(),
+      fieldset: 'core',
     },
     {
       name: 'slug',
@@ -23,68 +29,71 @@ export default {
       type: 'slug',
       options: {source: 'name'},
       validation: (Rule: ValidationRule) => Rule.required(),
+      fieldset: 'core',
     },
-    {name: 'shortDescription', title: 'Short Description', type: 'string'},
-    {name: 'longDescription', title: 'Detailed Description', type: 'text'},
+    {name: 'shortDescription', title: 'Short Description', type: 'string', fieldset: 'core'},
+    {name: 'longDescription', title: 'Detailed Description', type: 'text', fieldset: 'core'},
+
     {
-      name: 'portrait',
-      title: 'Visual / Environment Image',
-      type: 'image',
-      options: {hotspot: true},
+      name: 'type',
+      title: 'Location Type',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'City', value: 'city'},
+          {title: 'Dungeon', value: 'dungeon'},
+          {title: 'Region', value: 'region'},
+          {title: 'Landmark', value: 'landmark'},
+          {title: 'Ruins', value: 'ruins'},
+          {title: 'Sanctum', value: 'sanctum'},
+        ],
+        layout: 'radio',
+      },
+      validation: (Rule: ValidationRule) => Rule.required(),
+      fieldset: 'core',
     },
-    {name: 'mapMarker', title: 'Map Marker Icon', type: 'image', options: {hotspot: true}},
-
-    createRadioDropdown('type', 'Location Type', [
-      {title: 'City', value: 'city'},
-      {title: 'Dungeon', value: 'dungeon'},
-      {title: 'Region', value: 'region'},
-      {title: 'Landmark', value: 'landmark'},
-      {title: 'Ruins', value: 'ruins'},
-      {title: 'Sanctum', value: 'sanctum'},
-    ]),
-
     createRadioDropdown('aetherAlignment', 'Aetheric Alignment', dropdownAetherAlignments),
 
     {name: 'levelMin', title: 'Minimum Level', type: 'number'},
     {name: 'levelMax', title: 'Maximum Level', type: 'number'},
-
     {name: 'containsAetherNodes', title: 'Contains Aether Nodes?', type: 'boolean'},
     {name: 'isSafeZone', title: 'Is This a Safe Zone?', type: 'boolean'},
 
+    // Visuals
     {
-      name: 'resourceTags',
-      title: 'Common Resources or Materials',
-      type: 'array',
-      of: [{type: 'string'}],
+      name: 'portrait',
+      title: 'Environment Illustration',
+      type: 'image',
+      options: {hotspot: true},
+      fieldset: 'visual',
     },
     {
-      name: 'relatedFations',
-      title: 'Associated Factions',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'faction'}]}],
+      name: 'mapMarker',
+      title: 'Map Marker Icon',
+      type: 'image',
+      options: {hotspot: true},
+      fieldset: 'visual',
     },
 
-    {
-      name: 'inhabitants',
-      title: 'Key NPCs in This Location',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'npc'}]}],
-    },
-    {
-      name: 'associatedQuests',
-      title: 'Associated Quests',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'quest'}]}],
-    },
-    {
-      name: 'connectedLoreEntries',
-      title: 'Related Lore Entries',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'lore'}]}],
-    },
+    // Tags and integrations
+    checkDropdown('resourceTags', 'Common Resources or Materials', [
+      'Wood',
+      'Herbs',
+      'Ore',
+      'Gems',
+      'Aether Dust',
+      'Water',
+      'Spices',
+      'Essence Shards',
+    ]),
+
+    flexibleReferenceArray('relatedFactions', 'Associated Factions', ['faction']),
+    flexibleReferenceArray('inhabitants', 'Inhabiting NPCs', ['npc']),
+    flexibleReferenceArray('associatedQuests', 'Related Quests', ['quest']),
+    flexibleReferenceArray('connectedLoreEntries', 'Linked Lore Entries', ['lore']),
     {
       name: 'parentRegion',
-      title: 'Larger Region or Parent Zone',
+      title: 'Parent Region / Zone',
       type: 'reference',
       to: [{type: 'location'}],
     },

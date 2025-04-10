@@ -17,13 +17,15 @@ import {
 
 import {
   checkDropdown,
-  damageRangeArray,
+  damageArray,
+  resistanceArray,
   statEffectArray,
   durabilityValidation,
   needsCategories,
   needsCategory,
-  DefenceArray,
+  defenceArray,
 } from '../schemaVariables/schemaVariables'
+
 import {MinMaxRule, ValidationRule} from '../types/types'
 
 export default {
@@ -76,7 +78,8 @@ export default {
       fields: [
         checkDropdown('armourCategory', 'What armour-class is it?', dropdownArmorCategories),
         checkDropdown('slot', 'Where on the body do you want to equip it?', dropdownArmorSlots),
-        DefenceArray(),
+        defenceArray(),
+        resistanceArray(), // Optional addition
       ],
     },
     {
@@ -87,7 +90,7 @@ export default {
       fields: [
         checkDropdown('weaponCategory', 'What type of weapon is it?', dropdownWeaponCategories),
         checkDropdown('slot', 'In which hand do you want to equip it?', dropdownWeaponSlots),
-        damageRangeArray(),
+        damageArray(),
       ],
     },
     {
@@ -103,6 +106,7 @@ export default {
         ),
         checkDropdown('slot', 'Where on the body do you want to equip it?', dropdownJewelrySlots),
         statEffectArray(),
+        resistanceArray(), // Optional addition
       ],
     },
 
@@ -171,7 +175,7 @@ export default {
       validation: durabilityValidation,
     },
 
-    // NEW: INVENTORY LOGIC
+    // INVENTORY METADATA
     checkDropdown('inventoryRole', 'What is this item used for in inventory?', [
       'Equip',
       'Consume',

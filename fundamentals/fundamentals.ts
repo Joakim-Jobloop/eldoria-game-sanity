@@ -2,11 +2,18 @@
 // fundamentals/fundamentals.ts
 // =======================
 
-import { formatToDropdownOptions } from '../utils/formatter'
+import {formatToDropdownOptions} from '../utils/formatter'
 
 // ========== Raw Lists ==========
 
-export const primaryStats = ['Strength', 'Agility', 'Vitality', 'Intelligence', 'Wisdom', 'Charisma']
+export const primaryStats = [
+  'Strength',
+  'Agility',
+  'Vitality',
+  'Intelligence',
+  'Wisdom',
+  'Charisma',
+]
 export const secondaryStats = [
   'Health',
   'Mana',
@@ -21,14 +28,40 @@ export const tertiaryStats = ['Critical Chance', 'Critical Damage', 'Accuracy', 
 export const conditions = ['Night Vision', 'Stealth']
 export const elementalTypes = ['Ember', 'Rime', 'Shatterlight', 'Entropis', 'Vitalis', 'Aether']
 export const physicalTypes = ['Slashing', 'Piercing', 'Blunt']
-export const allTraitTypes = ['Offensive', 'Defensive', 'Utility', 'Hybrid', 'Unique', 'Support', 'Aura',"Race","Class", "Item"]
+export const allTraitTypes = [
+  'Offensive',
+  'Defensive',
+  'Utility',
+  'Hybrid',
+  'Unique',
+  'Support',
+  'Aura',
+  'Race',
+  'Class',
+  'Item',
+]
 export const traitTypes = allTraitTypes.filter((t) => t !== 'Race' && t !== 'Class' && t !== 'Item')
 
 export const allStats = Array.from(
-  new Set([...primaryStats, ...secondaryStats, ...tertiaryStats, ...elementalTypes, ...conditions])
+  new Set([...primaryStats, ...secondaryStats, ...tertiaryStats, ...elementalTypes, ...conditions]),
 )
 export const allDamageTypes = [...physicalTypes, ...elementalTypes]
 
+const skillSupportTags = [
+  'AoE',
+  'Chain',
+  'Summon',
+  'Teleport',
+  'Cleanse',
+  'Interrupt',
+  'Shield',
+  'Displace',
+  'Silence',
+  'Stun',
+  'Knockback',
+  'Root',
+]
+export const dropdownSkillSupportTags = formatToDropdownOptions(skillSupportTags)
 
 // ========== Loot Metadata ==========
 
@@ -46,8 +79,6 @@ const lootTiers = [
 ]
 export const dropdownLootTiers = formatToDropdownOptions(lootTiers)
 
-
-
 // ========== Character Metadata ==========
 
 const characterClasses = [
@@ -62,7 +93,15 @@ const characterClasses = [
 ]
 export const dropdownCharacterClasses = formatToDropdownOptions(characterClasses)
 
-const characterRaces = ['Eidralis', 'Eldrin', 'Human', 'Skyforged', 'Stonekin', 'Umbran', 'Verdwalker']
+const characterRaces = [
+  'Eidralis',
+  'Eldrin',
+  'Human',
+  'Skyforged',
+  'Stonekin',
+  'Umbran',
+  'Verdwalker',
+]
 export const dropdownCharacterRaces = formatToDropdownOptions(characterRaces)
 
 const genderList = ['Male', 'Female', 'Other']
@@ -73,7 +112,14 @@ export const dropdownGenderList = formatToDropdownOptions(genderList)
 export const armorSlots = ['Head', 'Chest', 'Hands', 'Legs', 'Feet', 'Pauldron']
 export const dropdownArmorSlots = formatToDropdownOptions(armorSlots)
 
-export const jewelrySlots = ['Neck', 'Ring Slot One', 'Ring Slot Two', 'Belt Slot', 'Artifact Pouch', 'Wrist']
+export const jewelrySlots = [
+  'Neck',
+  'Ring Slot One',
+  'Ring Slot Two',
+  'Belt Slot',
+  'Artifact Pouch',
+  'Wrist',
+]
 export const dropdownJewelrySlots = formatToDropdownOptions(jewelrySlots)
 
 export const weaponSlots = ['Main Hand', 'Off Hand', 'Two Handed']
@@ -114,7 +160,15 @@ export const dropdownWeaponCategories = formatToDropdownOptions(weaponCategories
 export const jewelryCategories = ['Amulet', 'Ring', 'Talisman', 'Artifact', 'Bracelet']
 export const dropdownJewelryCategories = formatToDropdownOptions(jewelryCategories)
 
-export const consumableEffects = ['Buff', 'Debuff', 'Restore', 'Drain', 'Acquire', 'Cure', 'Resistance']
+export const consumableEffects = [
+  'Buff',
+  'Debuff',
+  'Restore',
+  'Drain',
+  'Acquire',
+  'Cure',
+  'Resistance',
+]
 export const dropdownConsumableEffects = formatToDropdownOptions(consumableEffects)
 
 export const loreCategories = [
@@ -156,7 +210,16 @@ export const dropdownSkillCategories = formatToDropdownOptions(skillCategories)
 const targetTypes = ['Self', 'Ally', 'Enemy', 'Area', 'Group', 'All']
 export const dropdownTargetTypes = formatToDropdownOptions(targetTypes)
 
-const aetherAlignments = ['Vitalis', 'Vitalis/Balanced', 'Balanced', 'Entropis/Balanced', 'Entropis', 'Aether', 'Unstable', 'Antum']
+const aetherAlignments = [
+  'Vitalis',
+  'Vitalis/Balanced',
+  'Balanced',
+  'Entropis/Balanced',
+  'Entropis',
+  'Aether',
+  'Unstable',
+  'Antum',
+]
 export const dropdownAetherAlignments = formatToDropdownOptions(aetherAlignments)
 
 // ========== Quest Metadata ==========
@@ -169,23 +232,14 @@ export const dropdownWinConditions = formatToDropdownOptions(completeConditions)
 
 // ========== Enemy Metadata ==========
 
-const enemyTypes = [
-  'Monster',
-  'Mortal',
-  'Construct',
-  'Undead',
-  'Spirit',
-  'Deity',
-  'Corrupted',
-]
+const enemyTypes = ['Monster', 'Mortal', 'Construct', 'Undead', 'Spirit', 'Deity', 'Corrupted']
 export const dropdownEnemyTypes = formatToDropdownOptions(enemyTypes)
 
-const enemyAggroType = ["Passive" ,"Aggressive", "Territorial", "Summoned"]
+const enemyAggroType = ['Passive', 'Aggressive', 'Territorial', 'Summoned']
 export const dropdownEnemyAggroType = formatToDropdownOptions(enemyAggroType)
 
 const combatTagOptions = ['Melee', 'Ranged', 'Magic', 'AoE', 'Debuff']
 export const dropdownCombatTagOptions = formatToDropdownOptions(combatTagOptions)
-
 
 // ========== Dropdown Bundles ==========
 

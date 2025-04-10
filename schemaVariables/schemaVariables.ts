@@ -10,8 +10,10 @@ import {
   ValidationRule,
 } from '../types/types'
 import {formatToDropdownOptions} from '../utils/formatter'
+import {statsPreview} from '../utils/previews'
 
-// Reusable dropdown formatter for stats, items, traits, etc.
+// ========== Shared Dropdowns ==========
+
 export const checkDropdown = (
   name: string,
   title: string,
@@ -73,7 +75,63 @@ export const numberDropdown = (
 export const durabilityValidation = (Rule: MinMaxRule) =>
   Rule.min(1).max(999).error('Durability must be between 1 and 999')
 
-export const damageRangeArray = (name = 'damageRanges', title = 'Damage Ranges') => ({
+// ========== Stat & Damage Arrays ==========
+
+export const statEffectArray = (name = 'statEffects', title = 'Stat Effects') => ({
+  name,
+  title,
+  type: 'array',
+  of: [
+    {
+      type: 'object',
+      fields: [
+        {
+          name: 'stat',
+          title: 'Affected Stat',
+          type: 'string',
+          options: {
+            layout: 'dropdown',
+            list: formatToDropdownOptions(allStats),
+          },
+        },
+        {name: 'amount', title: 'Effect Amount', type: 'number'},
+        {
+          name: 'duration',
+          title: 'Duration (optional)',
+          type: 'number',
+          description: 'How long this effect lasts in turns/seconds.',
+        },
+      ],
+      preview: statsPreview,
+    },
+  ],
+})
+
+export const defenceArray = (name = 'defensiveBonuses', title = 'Defensive Bonuses') => ({
+  name,
+  title,
+  type: 'array',
+  of: [
+    {
+      type: 'object',
+      fields: [
+        {
+          name: 'stat',
+          title: 'Defended Stat',
+          type: 'string',
+          options: {
+            layout: 'dropdown',
+            list: formatToDropdownOptions(allStats),
+          },
+        },
+        {name: 'amount', title: 'Bonus Amount', type: 'number'},
+      ],
+      preview: statsPreview,
+    },
+  ],
+})
+
+export const damageArray = (name = 'damageBonuses', title = 'Damage Effects') => ({
   name,
   title,
   type: 'array',
@@ -96,38 +154,15 @@ export const damageRangeArray = (name = 'damageRanges', title = 'Damage Ranges')
           name: 'duration',
           title: 'Duration (optional)',
           type: 'number',
-          description: 'Optional duration in turns/seconds if this damage type lingers.',
+          description: 'Optional lingering or periodic effect duration.',
         },
       ],
-      preview: {
-        select: {
-          type: 'type',
-          min: 'min',
-          max: 'max',
-          duration: 'duration',
-        },
-        prepare({
-          type,
-          min,
-          max,
-          duration,
-        }: {
-          type?: string
-          min?: number
-          max?: number
-          duration?: number
-        }) {
-          return {
-            title: type || 'Damage Type',
-            subtitle: `Min: ${min ?? 0} / Max: ${max ?? 0}${duration ? ` / Duration: ${duration}` : ''}`,
-          }
-        },
-      },
+      preview: statsPreview,
     },
   ],
 })
 
-export const DefenceArray = (name = 'statEffects', title = 'Stat Effects') => ({
+export const resistanceArray = (name = 'damageResistances', title = 'Damage Resistances') => ({
   name,
   title,
   type: 'array',
@@ -136,82 +171,27 @@ export const DefenceArray = (name = 'statEffects', title = 'Stat Effects') => ({
       type: 'object',
       fields: [
         {
-          name: 'stat',
-          title: 'Affected Stat',
+          name: 'type',
+          title: 'Damage Type',
           type: 'string',
           options: {
             layout: 'dropdown',
-            list: formatToDropdownOptions(allStats),
+            list: formatToDropdownOptions(allDamageTypes),
           },
         },
         {
-          name: 'amount',
-          title: 'Effect Amount',
+          name: 'modifier',
+          title: 'Resistance Modifier (%)',
           type: 'number',
+          description: 'Positive = more resistant, Negative = more vulnerable',
         },
       ],
-      preview: {
-        select: {
-          stat: 'stat',
-          amount: 'amount',
-          duration: 'duration',
-        },
-        prepare({stat, amount, duration}: {stat?: string; amount?: number; duration?: number}) {
-          return {
-            title: stat || 'Affected Stat',
-            subtitle: `Amount: ${amount ?? 0}${duration ? ` / Duration: ${duration}` : ''}`,
-          }
-        },
-      },
+      preview: statsPreview,
     },
   ],
 })
 
-export const statEffectArray = (name = 'statEffects', title = 'Stat Effects') => ({
-  name,
-  title,
-  type: 'array',
-  of: [
-    {
-      type: 'object',
-      fields: [
-        {
-          name: 'stat',
-          title: 'Affected Stat',
-          type: 'string',
-          options: {
-            layout: 'dropdown',
-            list: formatToDropdownOptions(allStats),
-          },
-        },
-        {
-          name: 'amount',
-          title: 'Effect Amount',
-          type: 'number',
-        },
-        {
-          name: 'duration',
-          title: 'Duration (optional)',
-          type: 'number',
-          description: 'How long this effect lasts in turns/seconds.',
-        },
-      ],
-      preview: {
-        select: {
-          stat: 'stat',
-          amount: 'amount',
-          duration: 'duration',
-        },
-        prepare({stat, amount, duration}: {stat?: string; amount?: number; duration?: number}) {
-          return {
-            title: stat || 'Affected Stat',
-            subtitle: `Amount: ${amount ?? 0}${duration ? ` / Duration: ${duration}` : ''}`,
-          }
-        },
-      },
-    },
-  ],
-})
+// ========== Logic Utilities ==========
 
 export const flexibleReferenceArray = (name: string, title: string, types: string[]) => ({
   name,
@@ -228,22 +208,17 @@ export const flexibleReferenceArray = (name: string, title: string, types: strin
 export const requiredField = (message: string) => (Rule: ValidationRule) =>
   Rule.required().error(message)
 
-//* this code is suppose to be for any amount of params, for main categories
 export const needsCategory = (...categories: string[]) => ({
   hidden: ({parent}: {parent?: {category?: unknown}}) => {
     const category = parent?.category
-
     if (!category) return true
-
     if (Array.isArray(category)) {
       return !category.map((c) => String(c).toLowerCase()).some((val) => categories.includes(val))
     }
-
     return !categories.includes(String(category).toLowerCase())
   },
 })
 
-//* this code is used for one main and one sub category
 export const needsCategories = (category: string, subCategory: string) => ({
   hidden: ({
     parent,
@@ -264,7 +239,6 @@ export const needsCategories = (category: string, subCategory: string) => ({
   },
 })
 
-//* used for roles
 export const needsRoleType = (...roles: string[]) => ({
   hidden: ({parent}: {parent?: {roleType?: string}}) =>
     !parent?.roleType || !roles.map((r) => r.toLowerCase()).includes(parent.roleType.toLowerCase()),
@@ -291,54 +265,50 @@ export const validateTotalSum =
       return true
     })
 
-    export const filteredItemReferenceArray = (
-      schema: string,
-      name: string,
-      title: string,
-      category?: string,
-      subCategory?: string
-  
-    ) => {
-      const filterClauses: string[] = []
-      const filterParams: Record<string, string> = {}
-    
-      if (category) {
-        filterClauses.push('$category in category')
-        filterParams.category = category
-      }
-    
-      if (subCategory) {
-        filterClauses.push('$subCategory in subCategory')
-        filterParams.subCategory = subCategory
-      }
-    
-      const options =
-        filterClauses.length > 0
-          ? {
-              filter: filterClauses.join(' && '),
-              filterParams,
-            }
-          : {}
-    
-      return {
-        name,
-        title,
-        type: 'array',
-        of: [
-          {
-            type: 'reference',
-            to: [{type: schema}],
-            options,
-          },
-        ],
-        options: {
-          layout: 'grid',
-        },
-        validation: validateUniqueReferences(
-          `You already added this ${
-            subCategory ? `${subCategory} ${category}` : category || 'item'
-          }.`
-        ),
-      }
-    }
-    
+export const filteredItemReferenceArray = (
+  schema: string,
+  name: string,
+  title: string,
+  category?: string,
+  subCategory?: string,
+) => {
+  const filterClauses: string[] = []
+  const filterParams: Record<string, string> = {}
+
+  if (category) {
+    filterClauses.push('$category in category')
+    filterParams.category = category
+  }
+
+  if (subCategory) {
+    filterClauses.push('$subCategory in subCategory')
+    filterParams.subCategory = subCategory
+  }
+
+  const options =
+    filterClauses.length > 0
+      ? {
+          filter: filterClauses.join(' && '),
+          filterParams,
+        }
+      : {}
+
+  return {
+    name,
+    title,
+    type: 'array',
+    of: [
+      {
+        type: 'reference',
+        to: [{type: schema}],
+        options,
+      },
+    ],
+    options: {
+      layout: 'grid',
+    },
+    validation: validateUniqueReferences(
+      `You already added this ${subCategory ? `${subCategory} ${category}` : category || 'item'}.`,
+    ),
+  }
+}

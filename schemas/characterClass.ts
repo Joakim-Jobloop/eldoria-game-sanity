@@ -16,23 +16,19 @@ export default {
   name: 'characterClass',
   title: 'Character Class',
   type: 'document',
-  fieldsets: [
-    {name: 'starterStats', title: 'Starter Stats (should sum to 15)', options: {columns: 3}},
-    {name: 'lore', title: 'Lore Fields', options: {columns: 1}},
-  ],
   fields: [
-    // Dropdown for class name (radio)
+    // Core Identity
     createRadioDropdown('category', 'What Character Class Type is this?', dropdownCharacterClasses),
 
-    // Stat block with validation
+    // Starter Stats
     {
       name: 'starterAttributes',
-      title: 'Starter Attributes',
+      title: 'Starter Attributes (should sum to 15)',
       type: 'object',
-      fieldset: 'starterStats',
       validation: validateTotalSum(15, 'Starter attributes'),
+      options: {columns: 3}, // 👈 This will apply column layout *inside* the object
       fields: dropdownPrimaryStats.map((stat) => ({
-        name: stat.value.replace(/\s+/g, '_').toLowerCase(), // sanitize for valid field name
+        name: stat.value.replace(/\s+/g, '_').toLowerCase(),
         title: stat.title,
         type: 'number',
         validation: (Rule: AttributeRules) =>
@@ -40,33 +36,43 @@ export default {
       })),
     },
 
-    // Trait references
+    // Traits
     flexibleReferenceArray('classTraits', 'Class Traits', ['trait']),
 
-    // Starter equipment
+    // Starter Equipment
     {
       name: 'startEquipment',
       title: 'Start Equipment',
       type: 'array',
-      of: [
-        {
-          type: 'reference',
-          to: [{type: 'item'}],
-        },
-      ],
+      of: [{type: 'reference', to: [{type: 'item'}]}],
     },
 
-    // Visual fields
+    // Visual Identity
     {name: 'logo', title: 'Class Logo', type: 'image', options: {hotspot: true}},
     {name: 'portrait', title: 'Class Portrait', type: 'image', options: {hotspot: true}},
 
-    // Reference: links to lore entry for expanded codex text
+    // Linked Lore Entry
     {name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{type: 'lore'}]},
 
-    // Core lore data (grouped in fieldset)
-    {name: 'mainTagline', title: 'Main Tagline', type: 'string', fieldset: 'lore'},
-    {name: 'archetype', title: 'Role and Archetype', type: 'text', fieldset: 'lore'},
-    {name: 'appearance', title: 'Appearance', type: 'text', fieldset: 'lore'},
+    // Lore Fields (grouped visually in studio via fieldset)
+    {
+      name: 'mainTagline',
+      title: 'Main Tagline',
+      type: 'string',
+      fieldset: 'lore',
+    },
+    {
+      name: 'archetype',
+      title: 'Role and Archetype',
+      type: 'text',
+      fieldset: 'lore',
+    },
+    {
+      name: 'appearance',
+      title: 'Appearance',
+      type: 'text',
+      fieldset: 'lore',
+    },
     {
       name: 'aethericConnection',
       title: 'Connection to Aetheric Phenomena',
@@ -79,19 +85,47 @@ export default {
       type: 'string',
       fieldset: 'lore',
     },
-    {name: 'aethericAdaptation', title: 'Aetheric Adaptation', type: 'text', fieldset: 'lore'},
+    {
+      name: 'aethericAdaptation',
+      title: 'Aetheric Adaptation',
+      type: 'text',
+      fieldset: 'lore',
+    },
     {
       name: 'aethericAdaptationTagline',
       title: 'Aetheric Adaptation Tagline',
       type: 'string',
       fieldset: 'lore',
     },
-    {name: 'philosophy', title: 'Philosophy and Orders', type: 'text', fieldset: 'lore'},
-    {name: 'symbolism', title: 'Symbolism and Role in Eldoria', type: 'text', fieldset: 'lore'},
-    {name: 'folklore', title: 'Folklore', type: 'text', fieldset: 'lore'},
+    {
+      name: 'philosophy',
+      title: 'Philosophy and Orders',
+      type: 'text',
+      fieldset: 'lore',
+    },
+    {
+      name: 'symbolism',
+      title: 'Symbolism and Role in Eldoria',
+      type: 'text',
+      fieldset: 'lore',
+    },
+    {
+      name: 'folklore',
+      title: 'Folklore',
+      type: 'text',
+      fieldset: 'lore',
+    },
 
-    // Skill references
+    // Class-specific Skills
     flexibleReferenceArray('classSkills', 'Class Skills', ['skill']),
+  ],
+
+  fieldsets: [
+    {
+      name: 'lore',
+      title: 'Lore Fields',
+      options: {columns: 1}, // still makes visual separation in the Studio
+    },
   ],
 
   preview: {
