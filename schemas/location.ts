@@ -1,81 +1,84 @@
-import {dropdownAetherAlignments} from '../fundamentals/fundamentals'
-import {
-  createRadioDropdown,
-  checkDropdown,
-  flexibleReferenceArray,
-} from '../schemaVariables/schemaVariables'
-import {ValidationRule} from '../types/types'
+import {createNamedEntity} from '../schemaTypes/presets'
+import {createDefaultFieldsets} from '../schemaTypes/presets'
+import {aethericResonance} from '../schemaTypes/aethericTypes'
+import {progressionRequirement} from '../schemaTypes/mechanicsTypes'
+import {createRadioDropdown, checkDropdown} from '../schemaVariables/schemaVariables'
+import {Rule} from 'sanity'
+
+interface LocationPreview {
+  title?: string
+  subtitle?: string
+  media?: any
+}
 
 export default {
   name: 'location',
   title: 'Location',
   type: 'document',
-  fieldsets: [
-    {name: 'core', title: 'Core Info', options: {columns: 2}},
-    {name: 'visual', title: 'Visual Identity', options: {columns: 2}},
-    {name: 'integration', title: 'Integration & Content', options: {columns: 2}},
-  ],
+  ...createDefaultFieldsets,
   fields: [
-    {
-      name: 'name',
-      title: 'Location Name',
-      type: 'string',
-      validation: (Rule: ValidationRule) => Rule.required(),
-      fieldset: 'core',
-    },
-    {
-      name: 'slug',
-      title: 'Slug / ID',
-      type: 'slug',
-      options: {source: 'name'},
-      validation: (Rule: ValidationRule) => Rule.required(),
-      fieldset: 'core',
-    },
-    {name: 'shortDescription', title: 'Short Description', type: 'string', fieldset: 'core'},
-    {name: 'longDescription', title: 'Detailed Description', type: 'text', fieldset: 'core'},
+    // Base fields with image only
+    ...Object.values(createNamedEntity({withImage: true, withLore: false})),
 
+    // Location Type
+    createRadioDropdown('type', 'Location Type', [
+      {title: 'City', value: 'city'},
+      {title: 'Dungeon', value: 'dungeon'},
+      {title: 'Region', value: 'region'},
+      {title: 'Landmark', value: 'landmark'},
+      {title: 'Ruins', value: 'ruins'},
+      {title: 'Sanctum', value: 'sanctum'},
+    ]),
+
+    // Lore References
     {
-      name: 'type',
-      title: 'Location Type',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'City', value: 'city'},
-          {title: 'Dungeon', value: 'dungeon'},
-          {title: 'Region', value: 'region'},
-          {title: 'Landmark', value: 'landmark'},
-          {title: 'Ruins', value: 'ruins'},
-          {title: 'Sanctum', value: 'sanctum'},
-        ],
-        layout: 'radio',
-      },
-      validation: (Rule: ValidationRule) => Rule.required(),
-      fieldset: 'core',
+      name: 'locationLore',
+      title: 'Location Lore',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'lore'}]}],
+      fieldset: 'lore',
+      description: "Detailed lore entries about this location's history, culture, and significance",
+      validation: (Rule: Rule) =>
+        Rule.required().error('At least one lore entry is required for location documentation'),
     },
-    createRadioDropdown('aetherAlignment', 'Aetheric Alignment', dropdownAetherAlignments),
 
-    {name: 'levelMin', title: 'Minimum Level', type: 'number'},
-    {name: 'levelMax', title: 'Maximum Level', type: 'number'},
-    {name: 'containsAetherNodes', title: 'Contains Aether Nodes?', type: 'boolean'},
-    {name: 'isSafeZone', title: 'Is This a Safe Zone?', type: 'boolean'},
+    // Aetheric Properties
+    aethericResonance,
 
-    // Visuals
+    // Level Requirements
+    progressionRequirement,
+
+    // Zone Properties
+    {
+      name: 'zoneProperties',
+      title: 'Zone Properties',
+      type: 'object',
+      fieldset: 'core',
+      fields: [
+        {name: 'isSafeZone', title: 'Is This a Safe Zone?', type: 'boolean'},
+        {name: 'containsAetherNodes', title: 'Contains Aether Nodes?', type: 'boolean'},
+      ],
+      validation: (Rule: Rule) => Rule.required(),
+    },
+
+    // Visual Identity
     {
       name: 'portrait',
       title: 'Environment Illustration',
       type: 'image',
       options: {hotspot: true},
-      fieldset: 'visual',
+      fieldset: 'visuals',
+      validation: (Rule: Rule) => Rule.required().error('Environment illustration is required'),
     },
     {
       name: 'mapMarker',
       title: 'Map Marker Icon',
       type: 'image',
       options: {hotspot: true},
-      fieldset: 'visual',
+      fieldset: 'visuals',
     },
 
-    // Tags and integrations
+    // Resources and Tags
     checkDropdown('resourceTags', 'Common Resources or Materials', [
       'Wood',
       'Herbs',
@@ -87,15 +90,38 @@ export default {
       'Essence Shards',
     ]),
 
-    flexibleReferenceArray('relatedFactions', 'Associated Factions', ['faction']),
-    flexibleReferenceArray('inhabitants', 'Inhabiting NPCs', ['npc']),
-    flexibleReferenceArray('associatedQuests', 'Related Quests', ['quest']),
-    flexibleReferenceArray('connectedLoreEntries', 'Linked Lore Entries', ['lore']),
+    // World Integration
     {
-      name: 'parentRegion',
-      title: 'Parent Region / Zone',
-      type: 'reference',
-      to: [{type: 'location'}],
+      name: 'worldIntegration',
+      title: 'World Integration',
+      type: 'object',
+      fieldset: 'integration',
+      fields: [
+        {
+          name: 'parentRegion',
+          title: 'Parent Region / Zone',
+          type: 'reference',
+          to: [{type: 'location'}],
+        },
+        {
+          name: 'connectedFactions',
+          title: 'Associated Factions',
+          type: 'array',
+          of: [{type: 'reference', to: [{type: 'faction'}]}],
+        },
+        {
+          name: 'inhabitants',
+          title: 'Inhabiting NPCs',
+          type: 'array',
+          of: [{type: 'reference', to: [{type: 'npc'}]}],
+        },
+        {
+          name: 'associatedQuests',
+          title: 'Related Quests',
+          type: 'array',
+          of: [{type: 'reference', to: [{type: 'quest'}]}],
+        },
+      ],
     },
   ],
 
@@ -105,9 +131,20 @@ export default {
       subtitle: 'type',
       media: 'portrait',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({title, subtitle, media}: LocationPreview) {
+      const zoneType = subtitle?.toLowerCase() || 'unknown'
+      const icon =
+        {
+          city: '🏰',
+          dungeon: '⚔️',
+          region: '🗺️',
+          landmark: '🏛️',
+          ruins: '🏚️',
+          sanctum: '✨',
+        }[zoneType] || '📍'
+
       return {
-        title: title || 'Unnamed Location',
+        title: icon + ' ' + (title || 'Unnamed Location'),
         subtitle: subtitle || 'No type specified',
         media,
       }

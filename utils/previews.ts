@@ -2,77 +2,120 @@
 // utils/effectPreview.ts
 // ===========================
 
+interface EffectPreviewInput {
+  category?: string
+  statEffects?: StatEffect[]
+  damageBonuses?: DamageBonus[]
+  damageResistances?: DamageResistance[]
+  defensiveBonuses?: DefensiveBonus[]
+}
+
+interface StatEffect {
+  stat?: string
+  amount?: number
+  duration?: number
+}
+
+interface DamageBonus {
+  type?: string
+  min?: number
+  max?: number
+  duration?: number
+}
+
+interface DamageResistance {
+  type?: string
+  modifier?: number
+}
+
+interface DefensiveBonus {
+  stat?: string
+  amount?: number
+}
+
+interface PreviewOutput {
+  title: string
+  subtitle: string
+}
+
 // ===========================
 // utils/statsPreview.ts
 // ===========================
 
+// Utility function for creating preview text with icons
+export const iconizedPreview = (title: string, subtitle: string, icon: string) => ({
+  title: `${icon} ${title}`,
+  subtitle,
+})
+
+// Preview for stats and effects
 export const statsPreview = {
   select: {
     stat: 'stat',
-    amount: 'amount',
-    duration: 'duration',
     type: 'type',
+    amount: 'amount',
     min: 'min',
     max: 'max',
     modifier: 'modifier',
+    duration: 'duration',
   },
-  prepare({
-    stat,
-    amount,
-    duration,
-    type,
-    min,
-    max,
-    modifier,
-  }: {
-    stat?: string
-    amount?: number
-    duration?: number
-    type?: string
-    min?: number
-    max?: number
-    modifier?: number
-  }) {
-    // Fallback label: stat or type
-    const label = stat || type || 'Effect'
+  prepare(selection: any) {
+    const {stat, type, amount, min, max, modifier, duration} = selection
+    let preview = ''
 
-    // Handle stat effects and defenses
-    if (stat && typeof amount === 'number') {
-      return {
-        title: label,
-        subtitle: `Amount: ${amount}${duration ? ` / Duration: ${duration}` : ''}`,
-      }
+    if (stat && amount) {
+      preview = `${stat}: ${amount > 0 ? '+' : ''}${amount}`
+    } else if (type && (min || max)) {
+      preview = `${type}: ${min || 0}-${max || min || 0}`
+    } else if (type && modifier) {
+      preview = `${type}: ${modifier > 0 ? '+' : ''}${modifier}%`
     }
 
-    // Handle damage bonuses
-    if (type && typeof min === 'number' && typeof max === 'number') {
-      return {
-        title: label,
-        subtitle: `+${min}-${max}${duration ? ` / Duration: ${duration}` : ''}`,
-      }
-    }
-
-    // Handle resistances
-    if (type && typeof modifier === 'number') {
-      return {
-        title: label,
-        subtitle: `Resistance: ${modifier}%`,
-      }
+    if (duration) {
+      preview += ` (${duration} turns)`
     }
 
     return {
-      title: label,
-      subtitle: 'No data',
+      title: preview,
+      subtitle: duration ? 'Timed Effect' : 'Permanent Effect',
     }
   },
 }
 
-type EffectPreviewInput = {
-  category?: string
-  statEffects?: {stat?: string; amount?: number}[]
-  damageBonuses?: {type?: string; min?: number; max?: number}[]
-  damageResistances?: {type?: string; modifier?: number}[]
-  defensiveBonuses?: {stat?: string; amount?: number}[]
+// Preview for reference arrays
+export const referenceArrayPreview = (title: string) => ({
+  title,
+  subtitle: (value: any[]) => `${value?.length || 0} items`,
+})
+
+// Aetheric resonance preview
+export const aethericPreview = {
+  select: {
+    primary: 'primaryResonance',
+    secondary: 'secondaryResonance',
+    level: 'resonanceLevel',
+  },
+  prepare({primary, secondary, level}: any) {
+    const resonanceIcons: Record<string, string> = {
+      light: '✨',
+      dark: '🌑',
+      nature: '🌿',
+      fire: '🔥',
+      water: '💧',
+      air: '💨',
+      earth: '🌎',
+      void: '⚫',
+    }
+
+    const primaryIcon = resonanceIcons[primary?.toLowerCase()] || '❓'
+    const secondaryIcon = secondary ? resonanceIcons[secondary?.toLowerCase()] : ''
+    const levelStars = level ? '★'.repeat(level) : ''
+
+    return {
+      title: `${primaryIcon} ${primary}${secondary ? ` + ${secondaryIcon} ${secondary}` : ''}`,
+      subtitle: levelStars ? `Resonance Level: ${levelStars}` : 'No resonance level set',
+    }
+  },
 }
 
 export const effectPreview = {
@@ -89,7 +132,7 @@ export const effectPreview = {
     damageBonuses = [],
     damageResistances = [],
     defensiveBonuses = [],
-  }: EffectPreviewInput) {
+  }: EffectPreviewInput): PreviewOutput {
     const parts: string[] = []
 
     if (statEffects?.length) {

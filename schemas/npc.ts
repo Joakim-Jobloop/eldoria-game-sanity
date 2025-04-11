@@ -2,167 +2,160 @@
 // schemas/npc.ts
 // ===========================
 
+import {createNamedEntity} from '../schemaTypes/presets'
+import {combatStats, resourceStats} from '../schemaTypes/statTypes'
+import {createDefaultFieldsets} from '../schemaTypes/presets'
+import {lootTable} from '../schemaTypes/mechanicsTypes'
 import {
-  dropdownAetherAlignments,
-  dropdownCharacterRaces,
-  dropdownCharacterClasses,
   dropdownNpcRoleTypes,
-  dropdownElementalTypes,
-  dropdownPhysicalTypes,
   dropdownEnemyTypes,
   dropdownEnemyAggroType,
-  dropdownLootTiers,
   dropdownCombatTagOptions,
+  dropdownLootTiers,
+  dropdownCharacterRaces,
+  dropdownCharacterClasses,
+  dropdownAetherAlignments,
 } from '../fundamentals/fundamentals'
-
 import {createRadioDropdown, checkDropdown, needsRoleType} from '../schemaVariables/schemaVariables'
-
 import {
   skillOffensiveStats,
   skillDefensiveStats,
   skillStatEffects,
 } from '../schemaVariables/skills/skillSchemaVariables'
+import {Rule} from 'sanity'
 
-import {MinMaxRule, ValidationRule} from '../types/types'
+interface NPCFlags {
+  isHostile?: boolean
+  isBoss?: boolean
+}
+
+interface NPCPreviewData {
+  title?: string
+  subtitle?: string
+  media?: any
+  flags?: NPCFlags
+}
+
+interface NPCParent {
+  combatFlags?: NPCFlags
+  roleType?: string
+}
 
 export default {
   name: 'npc',
   title: 'NPC (Friendly or Hostile)',
   type: 'document',
+  ...createDefaultFieldsets,
   fields: [
-    // Basic Identity
-    {
-      name: 'name',
-      title: 'Name',
-      type: 'string',
-      validation: (Rule: ValidationRule) => Rule.required(),
-    },
-    {
-      name: 'slug',
-      title: 'Slug / ID',
-      type: 'slug',
-      options: {source: 'name'},
-      validation: (Rule: ValidationRule) => Rule.required(),
-    },
-    {name: 'portrait', title: 'Portrait / Illustration', type: 'image', options: {hotspot: true}},
-    {name: 'description', title: 'Description', type: 'text'},
+    // Base fields with image
+    ...Object.values(createNamedEntity({withImage: true, withLore: true})),
 
-    // Classification
+    // Core Classification
     createRadioDropdown('roleType', 'What type of NPC is this?', dropdownNpcRoleTypes),
     createRadioDropdown('aetherAlignment', 'Aetheric Alignment', dropdownAetherAlignments),
+
+    // Combat Flags
     {
-      name: 'isHostile',
-      title: 'Is Hostile?',
-      type: 'boolean',
-      description: 'Enable enemy-specific fields if true',
+      name: 'combatFlags',
+      title: 'Combat Properties',
+      type: 'object',
+      fieldset: 'core',
+      fields: [
+        {name: 'isHostile', title: 'Is Hostile?', type: 'boolean'},
+        {name: 'isBoss', title: 'Is Boss?', type: 'boolean'},
+      ],
+      validation: (Rule: Rule) => Rule.required(),
     },
-    {name: 'isBoss', title: 'Is This a Boss?', type: 'boolean'},
 
-    // Dialogue & Lore
-    {name: 'dialogueKey', title: 'Dialogue Key (for frontend)', type: 'string'},
-    {name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{type: 'lore'}]},
-    {name: 'questReference', title: 'Associated Quest', type: 'reference', to: [{type: 'quest'}]},
-
-    // Tags and Traits
-    checkDropdown('raceTags', 'What race(s) apply?', dropdownCharacterRaces),
-    checkDropdown('classTags', 'What class(es) relate to this NPC?', dropdownCharacterClasses),
-
-    // Merchant Inventory
+    // Merchant Properties
     {
-      name: 'inventory',
+      name: 'merchantInventory',
       title: 'Merchant Inventory',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'item'}]}],
       ...needsRoleType('Merchant'),
     },
 
-    // Hostile/Enemy Stats
+    // Combat Properties (shown if hostile)
     {
       name: 'enemyType',
       title: 'Enemy Type',
       type: 'string',
-      options: {list: dropdownEnemyTypes, layout: 'dropdown'},
-      hidden: ({parent}: any) => !parent?.isHostile,
-    },
-    {
-      name: 'level',
-      title: 'Level',
-      type: 'number',
-      validation: (Rule: MinMaxRule) => Rule.min(1).max(100),
-      hidden: ({parent}: any) => !parent?.isHostile,
-    },
-    {
-      name: 'health',
-      title: 'Health Points',
-      type: 'number',
-      hidden: ({parent}: any) => !parent?.isHostile,
-    },
-    {
-      name: 'speed',
-      title: 'Speed / Turn Priority',
-      type: 'number',
-      hidden: ({parent}: any) => !parent?.isHostile,
-    },
-    checkDropdown('elementalType', 'Elemental Affinity (if any)', dropdownElementalTypes),
-    checkDropdown('physicalType', 'Physical Profile (if any)', dropdownPhysicalTypes),
-
-    // Combat Tags and Stats
-    createRadioDropdown('combatType', 'Combat Type', dropdownCombatTagOptions),
-    createRadioDropdown('aggroType', 'Aggression Type', dropdownEnemyAggroType),
-    createRadioDropdown('lootTier', 'Loot Tier', dropdownLootTiers),
-
-    {
-      name: 'skillSet',
-      title: 'Skills',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'skill'}]}],
-    },
-    {
-      name: 'dangerRating',
-      title: 'Danger Rating (1–5)',
-      type: 'number',
-      validation: (Rule: MinMaxRule) => Rule.min(1).max(5),
-      hidden: ({parent}: any) => !parent?.isHostile,
-    },
-    {
-      name: 'canBeTamed',
-      title: 'Can Be Tamed?',
-      type: 'boolean',
-      hidden: ({parent}: any) => !parent?.isHostile,
+      options: {list: dropdownEnemyTypes},
+      hidden: ({parent}: {parent?: NPCParent}) => !parent?.combatFlags?.isHostile,
     },
 
-    // Stats (hidden unless hostile)
-    {...skillOffensiveStats(), hidden: ({parent}: any) => !parent?.isHostile},
-    {...skillDefensiveStats(), hidden: ({parent}: any) => !parent?.isHostile},
-    {...skillStatEffects(), hidden: ({parent}: any) => !parent?.isHostile},
+    // Combat Stats (using our stat types)
+    {...combatStats, hidden: ({parent}) => !parent?.combatFlags?.isHostile},
+    {...resourceStats, hidden: ({parent}) => !parent?.combatFlags?.isHostile},
+
+    // Combat Behavior
+    {
+      name: 'combatBehavior',
+      title: 'Combat Behavior',
+      type: 'object',
+      hidden: ({parent}) => !parent?.combatFlags?.isHostile,
+      fieldset: 'combat',
+      fields: [
+        createRadioDropdown('aggroType', 'Aggression Type', dropdownEnemyAggroType),
+        createRadioDropdown('combatStyle', 'Combat Style', dropdownCombatTagOptions),
+        {
+          name: 'dangerRating',
+          title: 'Danger Rating (1-5)',
+          type: 'number',
+          validation: (Rule) => Rule.min(1).max(5),
+        },
+      ],
+    },
+
+    // Combat Stats and Effects
+    {
+      ...skillOffensiveStats(),
+      hidden: ({parent}) => !parent?.combatFlags?.isHostile,
+    },
+    {
+      ...skillDefensiveStats(),
+      hidden: ({parent}) => !parent?.combatFlags?.isHostile,
+    },
+    {
+      ...skillStatEffects(),
+      hidden: ({parent}) => !parent?.combatFlags?.isHostile,
+    },
+
+    // Character Aspects
+    checkDropdown('raceTags', 'What race(s) apply?', dropdownCharacterRaces),
+    checkDropdown('classTags', 'What class(es) relate to this NPC?', dropdownCharacterClasses),
+
+    // Drops and Loot
+    createRadioDropdown('lootTier', 'Loot Quality Tier', dropdownLootTiers),
+    {...lootTable, hidden: ({parent}) => !parent?.combatFlags?.isHostile},
 
     // World Integration
     {
-      name: 'faction',
-      title: 'Faction or Sect',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'faction'}]}],
-    },
-    {
-      name: 'lootTable',
-      title: 'Loot Table',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'item'}]}],
-      hidden: ({parent}: any) => !parent?.isHostile,
-    },
-    {
-      name: 'spawnLocations',
-      title: 'Spawn Locations',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'location'}]}],
-      hidden: ({parent}: any) => !parent?.isHostile,
-    },
-    {
-      name: 'corruptedFormOf',
-      title: 'Corrupted Form of Race',
-      type: 'reference',
-      to: [{type: 'characterRace'}],
-      hidden: ({parent}: any) => !parent?.isHostile,
+      name: 'worldIntegration',
+      title: 'World Integration',
+      type: 'object',
+      fieldset: 'integration',
+      fields: [
+        {
+          name: 'faction',
+          title: 'Faction or Sect',
+          type: 'array',
+          of: [{type: 'reference', to: [{type: 'faction'}]}],
+        },
+        {
+          name: 'spawnLocations',
+          title: 'Spawn Locations',
+          type: 'array',
+          of: [{type: 'reference', to: [{type: 'location'}]}],
+        },
+        {
+          name: 'corruptedFormOf',
+          title: 'Corrupted Form of Race',
+          type: 'reference',
+          to: [{type: 'characterRace'}],
+        },
+      ],
     },
   ],
 
@@ -171,10 +164,12 @@ export default {
       title: 'name',
       subtitle: 'roleType',
       media: 'portrait',
+      flags: 'combatFlags',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({title, subtitle, media, flags}: NPCPreviewData) {
+      const prefix = flags?.isHostile ? '⚔️ ' : flags?.isBoss ? '👑 ' : '👤 '
       return {
-        title: title || 'Unnamed NPC',
+        title: prefix + (title || 'Unnamed NPC'),
         subtitle: subtitle || 'No role defined',
         media,
       }

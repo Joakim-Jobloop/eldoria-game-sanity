@@ -1,112 +1,57 @@
 // components/VisualReferenceGridInput.tsx
 
-import React, {forwardRef} from 'react'
-import {
-  Box,
-  Card,
-  Flex,
-  Grid,
-  Text,
-  Stack,
-  Button,
-  Tooltip,
-} from '@sanity/ui'
-import {TrashIcon} from '@sanity/icons'
-import {set, unset} from 'sanity'
+import React from 'react'
+import {Reference, set, unset} from 'sanity'
+import {Box, Card, Flex, Grid, Stack, Text} from '@sanity/ui'
+import {VisualReferenceInputProps} from './visualReferenceArray'
 
-type Props = {
-  value?: any[]
-  onChange: (patch: any) => void
-  renderDefault?: () => React.ReactNode
-  columns?: number
-  compact?: boolean
-}
+export function VisualReferenceGridInput(props: VisualReferenceInputProps) {
+  const {value, onChange, schemaType} = props
+  const members = value || []
 
-export const VisualReferenceGridInput = forwardRef(function VisualReferenceGridInput(
-  props: Props,
-  ref
-) {
-  const {
-    value = [],
-    onChange,
-    renderDefault,
-    columns = 4,
-    compact = true,
-  } = props
-
-  const handleRemove = (itemToRemove: any) => {
-    if (!itemToRemove._key) return
-    const filtered = value.filter((v: any) => v._key !== itemToRemove._key)
-    onChange(filtered.length > 0 ? set(filtered) : unset())
-  }
-
-  const getLabel = (item: any) =>
-    item?.title || item?.name || item?._ref || item?._key?.slice(0, 6) || 'Unnamed'
-
-  const getImageUrl = (item: any): string | null => {
-    if (typeof item?.image === 'string') return item.image
-    if (item?.image?.asset?._ref) {
-      return `https://cdn.sanity.io/images/YOUR_PROJECT_ID/YOUR_DATASET/${item.image.asset._ref
-        .replace('image-', '')
-        .replace(/-(jpg|png|webp|jpeg)$/, '.$1')}`
-    }
-    return null
+  const handleToggle = (item: Reference) => {
+    const exists = members.some((ref: Reference) => ref._ref === item._ref)
+    onChange(
+      exists ? unset() : set([...members, {_key: item._ref, _ref: item._ref, _type: 'reference'}]),
+    )
   }
 
   return (
-    <Stack space={3} ref={ref as any}>
-      <Grid columns={columns} gap={compact ? 2 : 3}>
-        {value.map((item: any) => (
-          <Tooltip
-            key={item._key ?? item._ref}
-            content={
-              <Box padding={2}>
-                <Text size={1}>{getLabel(item)}</Text>
-              </Box>
-            }
-            placement="top"
-            fallbackPlacements={['bottom']}
-          >
+    <Stack space={4}>
+      <Grid columns={[1, 2, 3]} gap={3}>
+        {schemaType.options?.list?.map((item: any) => {
+          const isSelected = members.some((ref: Reference) => ref._ref === item._ref)
+          return (
             <Card
-              tone="default"
-              padding={compact ? 1 : 2}
-              radius={2}
-              shadow={1}
-              style={{textAlign: 'center'}}
+              key={item._ref}
+              tone={isSelected ? 'primary' : 'default'}
+              padding={3}
+              onClick={() => handleToggle(item)}
+              style={{cursor: 'pointer'}}
             >
-              <Flex direction="column" align="center" justify="center" style={{height: '100%'}}>
-                {getImageUrl(item) && (
-                  <Box marginBottom={2}>
+              <Flex align="center">
+                {item.media && (
+                  <Box marginRight={3} style={{width: '40px', height: '40px'}}>
                     <img
-                      src={getImageUrl(item)!}
-                      alt={getLabel(item)}
-                      style={{
-                        width: '48px',
-                        height: '48px',
-                        objectFit: 'contain',
-                        borderRadius: '4px',
-                      }}
+                      src={item.media}
+                      alt={item.title}
+                      style={{width: '100%', height: '100%', objectFit: 'cover'}}
                     />
                   </Box>
                 )}
-                <Text size={1} weight="semibold">{getLabel(item)}</Text>
-                <Box marginTop={2}>
-                  <Button
-                    icon={TrashIcon}
-                    tone="critical"
-                    mode="ghost"
-                    onClick={() => handleRemove(item)}
-                    aria-label="Remove item"
-                  />
-                </Box>
+                <Stack space={2}>
+                  <Text weight="semibold">{item.title}</Text>
+                  {item.subtitle && (
+                    <Text size={1} muted>
+                      {item.subtitle}
+                    </Text>
+                  )}
+                </Stack>
               </Flex>
             </Card>
-          </Tooltip>
-        ))}
+          )
+        })}
       </Grid>
-
-      {/* Default "+" control */}
-      <Box>{renderDefault?.()}</Box>
     </Stack>
   )
-})
+}

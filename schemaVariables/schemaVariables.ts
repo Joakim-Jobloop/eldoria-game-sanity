@@ -3,14 +3,9 @@
 // =======================
 
 import {allDamageTypes, allStats} from '../fundamentals/fundamentals'
-import {
-  MinMaxRule,
-  SumValidationRule,
-  validateUniqueReferences,
-  ValidationRule,
-} from '../types/types'
 import {formatToDropdownOptions} from '../utils/formatter'
 import {statsPreview} from '../utils/previews'
+import {Rule} from 'sanity'
 
 // ========== Shared Dropdowns ==========
 
@@ -20,6 +15,7 @@ export const checkDropdown = (
   options: string[] | {title: string; value: string}[],
 ) => {
   const isStringArray = typeof options[0] === 'string'
+  const formattedOptions = isStringArray ? formatToDropdownOptions(options as string[]) : options
   return {
     name,
     title,
@@ -27,9 +23,9 @@ export const checkDropdown = (
     of: [{type: 'string'}],
     options: {
       layout: 'grid',
-      list: isStringArray ? formatToDropdownOptions(options as string[]) : options,
+      list: formattedOptions,
     },
-    validation: (Rule: ValidationRule) => Rule.required().error(`One must be selected`),
+    validation: (Rule: Rule) => Rule.required().error(`One must be selected`),
   }
 }
 
@@ -45,14 +41,7 @@ export const createRadioDropdown = (
     layout: 'radio',
     list: options,
   },
-  validation: (Rule: any) =>
-    Rule.required()
-      .custom((value: any) => {
-        if (!value) return 'You must select one of the options!'
-        if (typeof value != 'string') return 'Invalid selection'
-        return true
-      })
-      .error('You must select exactly one of the provided options!'),
+  validation: (Rule: Rule) => Rule.required().error('You must select one of the provided options!'),
 })
 
 export const numberDropdown = (
@@ -69,10 +58,10 @@ export const numberDropdown = (
     title: option,
     type: 'number',
   })),
-  validation: (Rule: ValidationRule) => Rule.required().error(`${title} must be selected`),
+  validation: (Rule: Rule) => Rule.required().error(`${title} must be selected`),
 })
 
-export const durabilityValidation = (Rule: MinMaxRule) =>
+export const durabilityValidation = (Rule: Rule) =>
   Rule.min(1).max(999).error('Durability must be between 1 and 999')
 
 // ========== Stat & Damage Arrays ==========
@@ -193,6 +182,11 @@ export const resistanceArray = (name = 'damageResistances', title = 'Damage Resi
 
 // ========== Logic Utilities ==========
 
+interface ParentWithCategory {
+  category?: string | string[]
+  subCategory?: string | string[]
+}
+
 export const flexibleReferenceArray = (name: string, title: string, types: string[]) => ({
   name,
   title,
@@ -200,16 +194,18 @@ export const flexibleReferenceArray = (name: string, title: string, types: strin
   of: [
     {
       type: 'reference',
-      to: types.map((type) => ({type})),
+      to: types.map((type) => ({
+        type,
+        title: type.charAt(0).toUpperCase() + type.slice(1),
+      })),
     },
   ],
 })
 
-export const requiredField = (message: string) => (Rule: ValidationRule) =>
-  Rule.required().error(message)
+export const requiredField = (message: string) => (Rule: Rule) => Rule.required().error(message)
 
 export const needsCategory = (...categories: string[]) => ({
-  hidden: ({parent}: {parent?: {category?: unknown}}) => {
+  hidden: ({parent}: {parent?: ParentWithCategory}) => {
     const category = parent?.category
     if (!category) return true
     if (Array.isArray(category)) {
@@ -220,11 +216,7 @@ export const needsCategory = (...categories: string[]) => ({
 })
 
 export const needsCategories = (category: string, subCategory: string) => ({
-  hidden: ({
-    parent,
-  }: {
-    parent?: {category?: string | string[]; subCategory?: string | string[]}
-  }) => {
+  hidden: ({parent}: {parent?: ParentWithCategory}) => {
     if (!parent?.category || !parent?.subCategory) return true
 
     const categoryMatches = Array.isArray(parent.category)
@@ -250,7 +242,7 @@ export const validateTotalSum =
     label = 'Attributes',
     options: {exact?: boolean; min?: number; max?: number} = {exact: true},
   ) =>
-  (Rule: SumValidationRule) =>
+  (Rule: Rule) =>
     Rule.custom((fields) => {
       const total = Object.values(fields || {}).reduce((acc, val) => acc + (val || 0), 0)
       if (options.exact && total !== expectedTotal) {
@@ -266,49 +258,39 @@ export const validateTotalSum =
     })
 
 export const filteredItemReferenceArray = (
-  schema: string,
+  type: string,
   name: string,
   title: string,
   category?: string,
   subCategory?: string,
 ) => {
-  const filterClauses: string[] = []
-  const filterParams: Record<string, string> = {}
-
-  if (category) {
-    filterClauses.push('$category in category')
-    filterParams.category = category
-  }
-
-  if (subCategory) {
-    filterClauses.push('$subCategory in subCategory')
-    filterParams.subCategory = subCategory
-  }
-
-  const options =
-    filterClauses.length > 0
-      ? {
-          filter: filterClauses.join(' && '),
-          filterParams,
-        }
-      : {}
-
   return {
     name,
     title,
     type: 'array',
-    of: [
-      {
-        type: 'reference',
-        to: [{type: schema}],
-        options,
-      },
-    ],
+    of: [{type: 'reference', to: [{type}]}],
     options: {
       layout: 'grid',
+      filter:
+        category && subCategory
+          ? `category == $category && subCategory == $subCategory`
+          : category
+            ? `category == $category`
+            : undefined,
+      filterParams: {
+        category,
+        subCategory,
+      },
     },
-    validation: validateUniqueReferences(
-      `You already added this ${subCategory ? `${subCategory} ${category}` : category || 'item'}.`,
-    ),
+    components: {
+      input: 'visualReferenceArray',
+    },
   }
 }
+
+export const minCharacteristic = (Rule: Rule) =>
+  Rule.min(0).max(100).error('Characteristic must be between 0 and 100')
+
+export const minEnergyCost = (Rule: Rule) => Rule.min(0).error('Energy cost cannot be negative')
+
+export const minGoldCost = (Rule: Rule) => Rule.min(0).error('Gold cost cannot be negative')

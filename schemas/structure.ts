@@ -2,48 +2,35 @@
 // schemas/structure.ts
 // ===========================
 
-import {dropdownAetherAlignments} from '../fundamentals/fundamentals'
+import {createNamedEntity} from '../schemaTypes/presets'
+import {createDefaultFieldsets} from '../schemaTypes/presets'
+import {aethericResonance} from '../schemaTypes/aethericTypes'
+import {progressionRequirement} from '../schemaTypes/mechanicsTypes'
+import {createRadioDropdown, flexibleReferenceArray} from '../schemaVariables/schemaVariables'
+import {Rule} from 'sanity'
 
-import {createRadioDropdown} from '../schemaVariables/schemaVariables'
+interface StructureStatus {
+  isRuined?: boolean
+  isOccupied?: boolean
+}
 
-import {ValidationRule} from '../types/types'
+interface StructurePreview {
+  title?: string
+  subtitle?: string
+  media?: any
+  status?: StructureStatus
+}
 
 export default {
   name: 'structure',
   title: 'Structure or Construct',
   type: 'document',
+  ...createDefaultFieldsets,
   fields: [
-    // Core Info
-    {
-      name: 'name',
-      title: 'Structure Name',
-      type: 'string',
-      validation: (Rule: ValidationRule) => Rule.required(),
-    },
-    {
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: {source: 'name'},
-      validation: (Rule: ValidationRule) => Rule.required(),
-    },
-    {
-      name: 'image',
-      title: 'Structure Image or Illustration',
-      type: 'image',
-      options: {hotspot: true},
-    },
-    {
-      name: 'description',
-      title: 'Structure Description',
-      type: 'text',
-    },
-    {
-      name: 'structureFunction',
-      title: 'What is this structure used for?',
-      type: 'text',
-    },
+    // Base fields with image only
+    ...Object.values(createNamedEntity({withImage: true, withLore: false})),
 
+    // Structure Classification
     createRadioDropdown('structureType', 'Structure Type', [
       {title: 'Temple', value: 'temple'},
       {title: 'Tower', value: 'tower'},
@@ -57,60 +44,88 @@ export default {
       {title: 'Other', value: 'other'},
     ]),
 
+    // Core Functionality & Status
     {
-      name: 'tags',
-      title: 'Tags (e.g., Divine, Abandoned)',
-      type: 'array',
-      of: [{type: 'string'}],
+      name: 'structureFunction',
+      title: 'What is this structure used for?',
+      type: 'text',
+      fieldset: 'core',
+      validation: (Rule: Rule) => Rule.required().error('Structure function must be specified'),
+    },
+    {
+      name: 'status',
+      title: 'Structure Status',
+      type: 'object',
+      fieldset: 'core',
+      fields: [
+        {name: 'isRuined', title: 'Is it in ruins?', type: 'boolean'},
+        {name: 'isOccupied', title: 'Is it currently occupied?', type: 'boolean'},
+      ],
+      validation: (Rule: Rule) => Rule.required(),
     },
 
-    {name: 'isRuined', title: 'Is it in ruins?', type: 'boolean'},
-    {name: 'isOccupied', title: 'Is it currently occupied?', type: 'boolean'},
+    // Lore References
+    {
+      name: 'structureLore',
+      title: 'Structure Lore',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'lore'}]}],
+      fieldset: 'lore',
+      description: "Detailed lore entries about this structure's history, significance, and role",
+    },
 
-    // Optional difficulty
-    {name: 'levelRequirement', title: 'Suggested Level to Explore', type: 'number'},
+    // Aetheric Properties
+    aethericResonance,
+
+    // Level Requirements
+    progressionRequirement,
 
     // World Integration
     {
-      name: 'linkedLocation',
-      title: 'Located In',
-      type: 'reference',
-      to: [{type: 'location'}],
-    },
-    {
-      name: 'faction',
-      title: 'Controlling or Associated Faction(s)',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'faction'}]}],
-    },
-
-    // Related Lore and Content
-    {
-      name: 'loreEntry',
-      title: 'Linked Lore Entry',
-      type: 'reference',
-      to: [{type: 'lore'}],
-    },
-    {
-      name: 'associatedItems',
-      title: 'Artifacts or Items Housed Here',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'item'}]}],
-    },
-    {
-      name: 'linkedNPCs',
-      title: 'Inhabitants or Guardians',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'npc'}]}],
-    },
-    {
-      name: 'associatedQuests',
-      title: 'Connected Quests',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'quest'}]}],
+      name: 'worldIntegration',
+      title: 'World Integration',
+      type: 'object',
+      fieldset: 'integration',
+      fields: [
+        {
+          name: 'linkedLocation',
+          title: 'Located In',
+          type: 'reference',
+          to: [{type: 'location'}],
+        },
+        {
+          name: 'controllingFactions',
+          title: 'Controlling or Associated Faction(s)',
+          type: 'array',
+          of: [{type: 'reference', to: [{type: 'faction'}]}],
+        },
+      ],
     },
 
-    createRadioDropdown('aetherAlignment', 'Aether Alignment (Optional)', dropdownAetherAlignments),
+    // References and Content
+    flexibleReferenceArray('linkedNPCs', 'Inhabitants or Guardians', ['npc']),
+    flexibleReferenceArray('associatedQuests', 'Connected Quests', ['quest']),
+    flexibleReferenceArray('associatedItems', 'Artifacts or Items Housed Here', ['item']),
+
+    // Tags
+    {
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {
+        layout: 'tags',
+        list: [
+          {title: 'Divine', value: 'divine'},
+          {title: 'Abandoned', value: 'abandoned'},
+          {title: 'Ancient', value: 'ancient'},
+          {title: 'Corrupted', value: 'corrupted'},
+          {title: 'Protected', value: 'protected'},
+          {title: 'Restricted', value: 'restricted'},
+          {title: 'Hidden', value: 'hidden'},
+        ],
+      },
+    },
   ],
 
   preview: {
@@ -118,10 +133,12 @@ export default {
       title: 'name',
       subtitle: 'structureType',
       media: 'image',
+      status: 'status',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({title, subtitle, media, status}: StructurePreview) {
+      const condition = status?.isRuined ? '🏚️ ' : status?.isOccupied ? '🏛️ ' : '🏗️ '
       return {
-        title: title || 'Unnamed Structure',
+        title: condition + (title || 'Unnamed Structure'),
         subtitle: subtitle || 'Unknown Type',
         media,
       }

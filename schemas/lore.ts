@@ -2,29 +2,48 @@
 // schemas/lore.ts
 // ===========================
 
-import {dropdownAetherAlignments, dropdownLoreCategories} from '../fundamentals/fundamentals'
-import {
-  createRadioDropdown,
-  flexibleReferenceArray,
-  needsCategory,
-} from '../schemaVariables/schemaVariables'
-import {ValidationRule} from '../types/types'
+import {createNamedEntity} from '../schemaTypes/presets'
+import {createDefaultFieldsets} from '../schemaTypes/presets'
+import {aethericResonance} from '../schemaTypes/aethericTypes'
+import {narrativeContext} from '../schemaTypes/narrativeTypes'
+import {flexibleReferenceArray, needsCategory} from '../schemaVariables/schemaVariables'
+import {dropdownLoreCategories} from '../fundamentals/fundamentals'
+import {Rule} from 'sanity'
+
+interface LoreMetadata {
+  isSecret?: boolean
+  isLegend?: boolean
+  isHistorical?: boolean
+}
+
+interface LorePreview {
+  title?: string
+  subtitle?: string
+  media?: any
+  metadata?: LoreMetadata
+  category?: string
+}
 
 export default {
   name: 'lore',
   title: 'Lore Entry',
   type: 'document',
-  fieldsets: [
-    {name: 'category', title: 'Category and Subtype', options: {columns: 2}},
-    {name: 'core', title: 'Core Lore Info', options: {columns: 2}},
-    {name: 'conditional', title: 'Conditional Fields', options: {columns: 2}},
-    {name: 'connections', title: 'Factions, Links & Related', options: {columns: 2}},
-  ],
+  ...createDefaultFieldsets,
   fields: [
-    // Main Category
-    createRadioDropdown('category', 'What kind of lore is this?', dropdownLoreCategories),
+    // Base fields with image
+    ...Object.values(createNamedEntity({withImage: true})),
 
-    // Subcategories (conditionally shown)
+    // Core Classification and Categories
+    {
+      name: 'loreCategory',
+      title: 'What kind of lore is this?',
+      type: 'string',
+      options: {list: dropdownLoreCategories},
+      validation: (Rule: Rule) => Rule.required().error('Lore category must be specified'),
+      fieldset: 'core',
+    },
+
+    // Subcategories based on type
     {
       name: 'deitySubCategory',
       title: 'Deity Subcategory',
@@ -35,9 +54,7 @@ export default {
           {title: 'Common Deity', value: 'common'},
           {title: 'Lesser Deity', value: 'lesser'},
         ],
-        layout: 'dropdown',
       },
-      fieldset: 'category',
       ...needsCategory('deity'),
     },
     {
@@ -51,9 +68,7 @@ export default {
           {title: 'Shatterline', value: 'shatterline'},
           {title: 'Ashfount', value: 'ashfount'},
         ],
-        layout: 'dropdown',
       },
-      fieldset: 'category',
       ...needsCategory('aetheric_phenomenon'),
     },
     {
@@ -65,79 +80,22 @@ export default {
           {title: 'Primal', value: 'primal'},
           {title: 'Derived', value: 'derived'},
         ],
-        layout: 'dropdown',
       },
-      fieldset: 'category',
       ...needsCategory('metaphysical_force'),
     },
-    {
-      name: 'artifactSubCategory',
-      title: 'Artifact Type',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Item', value: 'item'},
-          {title: 'Structure', value: 'structure'},
-          {title: 'Location', value: 'location'},
-        ],
-        layout: 'dropdown',
-      },
-      fieldset: 'category',
-      ...needsCategory('artifact'),
-    },
-    {
-      name: 'philosophySubCategory',
-      title: 'Philosophy Type',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Religious', value: 'religious'},
-          {title: 'Aetheric', value: 'aetheric'},
-          {title: 'Martial', value: 'martial'},
-          {title: 'Cultural', value: 'cultural'},
-        ],
-        layout: 'dropdown',
-      },
-      fieldset: 'category',
-      ...needsCategory('philosophy_or_teaching'),
-    },
 
-    // Core Fields
-    {
-      name: 'title',
-      title: 'Lore Title',
-      type: 'string',
-      validation: (Rule: ValidationRule) => Rule.required(),
-      fieldset: 'core',
-    },
-    {
-      name: 'mainTagline',
-      title: 'Main Tagline',
-      type: 'string',
-      validation: (Rule: ValidationRule) => Rule.required(),
-      fieldset: 'core',
-    },
-    {
-      name: 'loreSummary',
-      title: 'Lore Summary',
-      type: 'text',
-      validation: (Rule: ValidationRule) => Rule.required(),
-      fieldset: 'core',
-    },
-    {
-      name: 'image',
-      title: 'Illustration or Visual',
-      type: 'image',
-      options: {hotspot: true},
-      fieldset: 'core',
-    },
+    // Narrative Context
+    narrativeContext,
 
-    // Conditional Fields
+    // Aetheric Properties
+    aethericResonance,
+
+    // Appearances and Manifestations
     {
       name: 'appearance',
       title: 'Appearance',
       type: 'text',
-      fieldset: 'conditional',
+      fieldset: 'lore',
       ...needsCategory(
         'deity',
         'race',
@@ -147,66 +105,148 @@ export default {
         'artifact',
       ),
     },
+
+    // Class-specific Lore Fields
+    {
+      name: 'aethericConnection',
+      title: 'Connection to Aetheric Phenomena',
+      type: 'text',
+      fieldset: 'lore',
+      description: 'How this entity interacts with and is affected by aetheric forces',
+      ...needsCategory('class'),
+    },
+    {
+      name: 'aethericConnectionTagline',
+      title: 'Aetheric Connection Tagline',
+      type: 'string',
+      fieldset: 'lore',
+      description: 'A short phrase describing the connection to aetheric forces',
+      ...needsCategory('class'),
+    },
+    {
+      name: 'aethericAdaptation',
+      title: 'Aetheric Adaptation',
+      type: 'text',
+      fieldset: 'lore',
+      description: 'How this entity has adapted to use or resist aetheric forces',
+      ...needsCategory('class'),
+    },
+    {
+      name: 'aethericAdaptationTagline',
+      title: 'Aetheric Adaptation Tagline',
+      type: 'string',
+      fieldset: 'lore',
+      description: 'A short phrase describing the aetheric adaptation',
+      ...needsCategory('class'),
+    },
+    {
+      name: 'philosophy',
+      title: 'Philosophy and Orders',
+      type: 'text',
+      fieldset: 'lore',
+      description: 'The belief systems and organizations associated with this entity',
+      ...needsCategory('class', 'faction', 'race'),
+    },
+    {
+      name: 'symbolism',
+      title: 'Symbolism and Cultural Role',
+      type: 'text',
+      fieldset: 'lore',
+      description: 'The symbolic meaning and cultural significance in the world',
+      ...needsCategory('class', 'race', 'artifact'),
+    },
+    {
+      name: 'folklore',
+      title: 'Folklore',
+      type: 'text',
+      fieldset: 'lore',
+      description: 'Myths, legends, and stories associated with this entity',
+      ...needsCategory('class', 'race', 'artifact', 'location'),
+    },
+
+    // Cultural Impact
     {
       name: 'cultureAndSociety',
       title: 'Culture and Society',
       type: 'text',
-      fieldset: 'conditional',
+      fieldset: 'lore',
       ...needsCategory('deity', 'race', 'class', 'philosophy_or_teaching'),
-    },
-    {
-      name: 'homeland',
-      title: 'Homeland',
-      type: 'text',
-      fieldset: 'conditional',
-      ...needsCategory('deity', 'race', 'class', 'location'),
     },
     {
       name: 'myth',
       title: 'Myth or Legend',
       type: 'text',
-      fieldset: 'conditional',
+      fieldset: 'lore',
       ...needsCategory('deity', 'historical_event', 'race', 'class', 'artifact'),
     },
+
+    // World Integration
     {
-      name: 'natureAndTraits',
-      title: 'Nature and Traits',
-      type: 'text',
-      fieldset: 'conditional',
-      ...needsCategory('deity', 'race', 'class', 'metaphysical_force', 'artifact'),
-    },
-    {
-      name: 'associatedArtifacts',
-      title: 'Associated Artifacts or Structures',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'item'}, {type: 'location'}]}],
-      fieldset: 'conditional',
-      ...needsCategory('artifact', 'deity', 'class', 'race', 'location'),
+      name: 'worldIntegration',
+      title: 'World Integration',
+      type: 'object',
+      fieldset: 'integration',
+      fields: [
+        flexibleReferenceArray('associatedFactions', 'Known Factions or Sects', ['faction']),
+        flexibleReferenceArray('relatedFigures', 'Notable Figures or Deities', ['npc']),
+        flexibleReferenceArray('relatedEntities', 'Connected Entities', [
+          'characterRace',
+          'characterClass',
+          'item',
+          'skill',
+        ]),
+        flexibleReferenceArray('relatedLocations', 'Connected Locations', ['location']),
+        flexibleReferenceArray('relatedLore', 'Related Lore', ['lore']),
+      ],
     },
 
-    // Relationships & Lore Web
-    flexibleReferenceArray('faction', 'Known Faction or Sect', ['faction']),
-    createRadioDropdown('aetherAlignment', 'Aether Alignment', dropdownAetherAlignments),
-    flexibleReferenceArray('relatedFigures', 'Notable Figures or Deities', ['npc']),
-    flexibleReferenceArray('relatedEntities', 'Connected Entities', [
-      'characterRace',
-      'characterClass',
-      'item',
-      'skill',
-    ]),
-    flexibleReferenceArray('relatedLore', 'Related Lore', ['lore']),
+    {
+      name: 'metadata',
+      title: 'Lore Metadata',
+      type: 'object',
+      fieldset: 'core',
+      fields: [
+        {name: 'isSecret', title: 'Secret Knowledge?', type: 'boolean'},
+        {name: 'isLegend', title: 'Legendary Tale?', type: 'boolean'},
+        {name: 'isHistorical', title: 'Historical Record?', type: 'boolean'},
+      ],
+      validation: (Rule: Rule) => Rule.required(),
+    },
   ],
 
   preview: {
     select: {
-      title: 'title',
-      subtitle: 'mainTagline',
+      title: 'name',
+      subtitle: 'loreCategory',
       media: 'image',
+      metadata: 'metadata',
+      category: 'loreCategory',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({title, subtitle, media, metadata, category}: LorePreview) {
+      const icons = {
+        deity: '✨',
+        'aetheric phenomenon': '🌀',
+        'metaphysical force': '💫',
+        'historical event': '📜',
+        location: '🗺️',
+        'philosophy or teaching': '📚',
+        artifact: '🏺',
+        race: '👥',
+        class: '⚔️',
+        other: '📖',
+      }
+
+      const prefix = metadata?.isSecret
+        ? '🔒 '
+        : metadata?.isLegend
+          ? '📖 '
+          : metadata?.isHistorical
+            ? '📜 '
+            : icons[category?.toLowerCase() as keyof typeof icons] || '📖 '
+
       return {
-        title: title || 'Untitled Lore',
-        subtitle: subtitle || 'No tagline provided',
+        title: prefix + (title || 'Unnamed Lore Entry'),
+        subtitle: subtitle || 'Uncategorized',
         media,
       }
     },

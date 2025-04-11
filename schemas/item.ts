@@ -2,65 +2,42 @@
 // schemas/item.ts
 // =======================
 
+import {createNamedEntity} from '../schemaTypes/presets'
+import {weaponProfile, armorProfile, jewelryProfile} from '../schemaTypes/equipmentTypes'
+import {statusEffect, buffEffect} from '../schemaTypes/effectTypes'
+import {createCraftingRecipe} from '../schemaTypes/presets'
+import {createDefaultFieldsets} from '../schemaTypes/presets'
 import {
   dropdownItemCategories,
   dropdownItemSubCategories,
-  dropdownArmorCategories,
-  dropdownWeaponCategories,
-  dropdownJewelryCategories,
-  dropdownConsumableEffects,
-  dropdownWeaponSlots,
-  dropdownArmorSlots,
-  dropdownJewelrySlots,
   dropdownLootTiers,
 } from '../fundamentals/fundamentals'
+import {checkDropdown, needsCategories} from '../schemaVariables/schemaVariables'
+import {Rule} from 'sanity'
 
-import {
-  checkDropdown,
-  damageArray,
-  resistanceArray,
-  statEffectArray,
-  durabilityValidation,
-  needsCategories,
-  needsCategory,
-  defenceArray,
-} from '../schemaVariables/schemaVariables'
+interface ItemValue {
+  baseGoldValue?: number
+  baseGemValue?: number
+}
 
-import {MinMaxRule, ValidationRule} from '../types/types'
+interface ItemPreview {
+  title?: string
+  media?: any
+  subtitle?: string | string[]
+  value?: ItemValue
+  category?: string | string[]
+}
 
 export default {
   name: 'item',
   title: 'Item',
   type: 'document',
+  ...createDefaultFieldsets,
   fields: [
-    {
-      name: 'name',
-      title: 'Name the item',
-      type: 'string',
-      validation: (Rule: ValidationRule) => Rule.required(),
-    },
-    {
-      name: 'itemID',
-      type: 'slug',
-      title: 'Item ID',
-      options: {source: 'name', maxLength: 96},
-      validation: (Rule: ValidationRule) => Rule.required(),
-    },
-    {
-      name: 'src',
-      title: 'What is the source of the image for this item?',
-      type: 'image',
-      options: {hotspot: true},
-      validation: (Rule: ValidationRule) => Rule.required(),
-    },
-    {
-      name: 'description',
-      title: 'Tell me about the item',
-      type: 'text',
-      maxLength: 500,
-      validation: (Rule: ValidationRule) => Rule.required(),
-    },
+    // Base fields with image
+    ...Object.values(createNamedEntity({withImage: true})),
 
+    // Core Classification
     checkDropdown('category', 'What type of item is it?', dropdownItemCategories),
     checkDropdown(
       'subCategory',
@@ -69,113 +46,72 @@ export default {
     ),
     checkDropdown('rarity', 'What is the rarity of this item?', dropdownLootTiers),
 
-    // EQUIPPABLES
+    // Equipment Profiles
     {
-      name: 'armour',
-      title: 'Some armour, ey? How does it defend the player?',
-      type: 'object',
-      ...needsCategories('equippable', 'armour'),
-      fields: [
-        checkDropdown('armourCategory', 'What armour-class is it?', dropdownArmorCategories),
-        checkDropdown('slot', 'Where on the body do you want to equip it?', dropdownArmorSlots),
-        defenceArray(),
-        resistanceArray(), // Optional addition
-      ],
-    },
-    {
-      name: 'weapon',
-      title: 'Nice, a weapon! Define the stats below',
-      type: 'object',
+      ...weaponProfile,
       ...needsCategories('equippable', 'weapon'),
-      fields: [
-        checkDropdown('weaponCategory', 'What type of weapon is it?', dropdownWeaponCategories),
-        checkDropdown('slot', 'In which hand do you want to equip it?', dropdownWeaponSlots),
-        damageArray(),
-      ],
     },
     {
-      name: 'jewelry',
-      title: 'Fancy Jewelry! What are the characteristics for this item?',
-      type: 'object',
+      ...armorProfile,
+      ...needsCategories('equippable', 'armour'),
+    },
+    {
+      ...jewelryProfile,
       ...needsCategories('equippable', 'jewelry'),
-      fields: [
-        checkDropdown(
-          'jewelryCategory',
-          'What type of jewelry is this?',
-          dropdownJewelryCategories,
-        ),
-        checkDropdown('slot', 'Where on the body do you want to equip it?', dropdownJewelrySlots),
-        statEffectArray(),
-        resistanceArray(), // Optional addition
-      ],
     },
 
-    // CONSUMABLES
+    // Consumable Effects
     {
-      name: 'potion',
-      title: 'This is a potion? Describe it for me',
-      type: 'object',
-      ...needsCategories('consumable', 'potion'),
-      fields: [
-        checkDropdown(
-          'effectCategory',
-          'What type of effect does this potion give?',
-          dropdownConsumableEffects,
-        ),
-        statEffectArray('statEffects', 'Stat Effects'),
-      ],
-    },
-    {
-      name: 'food',
-      title: 'So this is a food item? What does it do?',
-      type: 'object',
-      ...needsCategories('consumable', 'food'),
-      fields: [
-        checkDropdown(
-          'effectCategory',
-          'What type of effect does this food have?',
-          dropdownConsumableEffects,
-        ),
-        statEffectArray('statEffects', 'Stat Effects'),
-      ],
-    },
-
-    // CRAFTING RECIPE
-    {
-      name: 'recipe',
-      title: 'Recipe',
+      name: 'consumableEffects',
+      title: 'Consumable Effects',
       type: 'array',
       of: [
         {
+          name: 'statusEffect',
+          title: 'Status Effect',
           type: 'object',
-          fields: [
-            {name: 'ingredient', title: 'Ingredient', type: 'reference', to: [{type: 'item'}]},
-            {name: 'amount', title: 'Amount', type: 'number'},
-          ],
-          preview: {
-            select: {
-              title: 'ingredient.name',
-              subtitle: 'amount',
-              media: 'ingredient.src',
-            },
-            prepare({title, subtitle, media}: {title: string; subtitle: string; media: any}) {
-              return {title, subtitle: `Amount: ${subtitle}`, media}
-            },
-          },
+          fields: statusEffect.fields,
+        },
+        {
+          name: 'buffEffect',
+          title: 'Buff Effect',
+          type: 'object',
+          fields: buffEffect.fields,
         },
       ],
+      ...needsCategories('consumable', 'consumable'),
     },
 
-    // DURABILITY
+    // Crafting
     {
-      name: 'durability',
-      title: 'How durable should it be?',
-      type: 'number',
-      ...needsCategory('equippable'),
-      validation: durabilityValidation,
+      ...createCraftingRecipe,
+      ...needsCategories('crafting_item', 'crafting'),
     },
 
-    // INVENTORY METADATA
+    // Market Values
+    {
+      name: 'value',
+      title: 'Item Value',
+      type: 'object',
+      fieldset: 'core',
+      fields: [
+        {
+          name: 'baseGoldValue',
+          title: 'Base Value (Gold)',
+          type: 'number',
+          validation: (Rule: Rule) => Rule.min(0),
+        },
+        {
+          name: 'baseGemValue',
+          title: 'Base Value (Gem)',
+          type: 'number',
+          validation: (Rule: Rule) => Rule.min(0),
+        },
+      ],
+      validation: (Rule: Rule) => Rule.required().error('Item value must be specified'),
+    },
+
+    // Inventory Metadata
     checkDropdown('inventoryRole', 'What is this item used for in inventory?', [
       'Equip',
       'Consume',
@@ -188,32 +124,41 @@ export default {
       'Crafted',
       'Starter',
     ]),
-
-    {
-      name: 'baseGoldValue',
-      title: 'Base Value (Gold)',
-      type: 'number',
-      description: 'Represents the default market value. Buy/sell prices are derived from this.',
-      validation: (Rule: MinMaxRule) => Rule.min(0).error('Value cannot be negative'),
-    },
-    {
-      name: 'baseGemValue',
-      title: 'Base Value (Gem)',
-      type: 'number',
-      description: 'Represents the default market value. Buy/sell prices are derived from this.',
-      validation: (Rule: MinMaxRule) => Rule.min(0).error('Value cannot be negative'),
-    },
   ],
 
   preview: {
     select: {
       title: 'name',
-      media: 'src',
+      media: 'image',
       subtitle: 'category',
+      value: 'value',
+      category: 'category',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({title, media, subtitle, value, category}: ItemPreview) {
+      const categories = Array.isArray(category) ? category : [category]
+      const icons = {
+        weapon: '⚔️',
+        armour: '🛡️',
+        jewelry: '💎',
+        potion: '🧪',
+        food: '🍖',
+        ingredient: '🌿',
+        material: '📦',
+        spice: '🧂',
+      }
+
+      const itemIcon = categories
+        .map((c) => icons[c?.toLowerCase() as keyof typeof icons] || '📦')
+        .join('')
+
+      const valueStr = value?.baseGoldValue
+        ? ` (${value.baseGoldValue}g)`
+        : value?.baseGemValue
+          ? ` (${value.baseGemValue}💎)`
+          : ''
+
       return {
-        title: title || 'Unnamed Item',
+        title: itemIcon + ' ' + (title || 'Unnamed Item') + valueStr,
         subtitle: Array.isArray(subtitle) ? subtitle.join(', ') : subtitle || 'No category',
         media,
       }

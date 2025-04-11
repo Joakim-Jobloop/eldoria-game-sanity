@@ -2,71 +2,108 @@
 // schemas/characterRace.ts
 // ===========================
 
-import {dropdownCharacterRaces, dropdownPrimaryStats} from '../fundamentals/fundamentals'
-
-import {
-  validateTotalSum,
-  createRadioDropdown,
-  flexibleReferenceArray,
-} from '../schemaVariables/schemaVariables'
-
-import {AttributeRules} from '../types/types'
+import {Rule} from 'sanity'
+import {createNamedEntity} from '../schemaTypes/presets.js'
+import {createDefaultFieldsets} from '../schemaTypes/presets.js'
+import {dropdownCharacterRaces} from '../fundamentals/fundamentals.js'
+import {createRadioDropdown, flexibleReferenceArray} from '../schemaVariables/schemaVariables.js'
 
 export default {
   name: 'characterRace',
   title: 'Character Race',
   type: 'document',
+  ...createDefaultFieldsets,
   fields: [
-    // Classification
-    createRadioDropdown('category', 'What Character Race is this?', dropdownCharacterRaces),
+    // Base fields with image only
+    ...Object.values(createNamedEntity({withImage: true, withLore: false})),
 
-    // Stat block
+    // Core Classification
+    createRadioDropdown('category', 'Race Category', dropdownCharacterRaces),
+
+    // Visual Identity
     {
-      name: 'starterAttributes',
-      title: 'Starter Attributes (should sum to 15)',
-      type: 'object',
-      validation: validateTotalSum(15, 'Starter attributes'),
-      options: {columns: 3},
-      fields: dropdownPrimaryStats.map((stat) => ({
-        name: stat.value.replace(/\s+/g, '_').toLowerCase(),
-        title: stat.title,
-        type: 'number',
-        validation: (Rule: AttributeRules) =>
-          Rule.min(1).max(10).error(`${stat.title} must be between 1 and 10`),
-      })),
+      name: 'portraitMale',
+      title: 'Male Portrait',
+      type: 'image',
+      options: {hotspot: true},
+      fieldset: 'visuals',
+    },
+    {
+      name: 'portraitFemale',
+      title: 'Female Portrait',
+      type: 'image',
+      options: {hotspot: true},
+      fieldset: 'visuals',
+    },
+    {
+      name: 'portraitOther',
+      title: 'Other Portrait',
+      type: 'image',
+      options: {hotspot: true},
+      fieldset: 'visuals',
+    },
+    {
+      name: 'logo',
+      title: 'Race Symbol or Icon',
+      type: 'image',
+      options: {hotspot: true},
+      fieldset: 'visuals',
     },
 
-    // Trait references
+    // Race Traits
     flexibleReferenceArray('raceTraits', 'Race Traits', ['trait']),
 
-    // Visuals
-    {name: 'logo', title: 'Race Logo', type: 'image', options: {hotspot: true}},
-    {name: 'portraitMale', title: 'Male Portrait', type: 'image', options: {hotspot: true}},
-    {name: 'portraitFemale', title: 'Female Portrait', type: 'image', options: {hotspot: true}},
-    {name: 'portraitOther', title: 'Other Portrait', type: 'image', options: {hotspot: true}},
+    // Race-specific Lore References
+    {
+      name: 'raceLore',
+      title: 'Race Lore',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'lore'}]}],
+      fieldset: 'lore',
+      description:
+        "Detailed lore entries about this race's culture, history, and role in the world",
+      validation: (Rule: Rule) =>
+        Rule.required().error('At least one lore entry is required for race documentation'),
+    },
 
-    // Display tagline (will move to lore later)
-    {name: 'mainTagline', title: 'Main Tagline', type: 'string'},
+    // Basic Info (kept in race schema as it's directly gameplay relevant)
+    {
+      name: 'physicalCharacteristics',
+      title: 'Physical Characteristics',
+      type: 'text',
+      fieldset: 'core',
+      description: 'Basic physical traits and appearance that affect gameplay',
+    },
+    {
+      name: 'racialAbilities',
+      title: 'Racial Abilities',
+      type: 'text',
+      fieldset: 'core',
+      description: 'Innate abilities and traits that affect gameplay',
+    },
 
-    // Lore connection
-    {name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{type: 'lore'}]},
-
-    // Optional connections
+    // Connections
     flexibleReferenceArray('corruptionForms', 'Corruption Forms', ['npc']),
     flexibleReferenceArray('notableFigures', 'Notable Figures', ['npc']),
   ],
 
   preview: {
     select: {
-      title: 'category',
-      subtitle: 'mainTagline',
-      media: 'portraitMale',
+      title: 'name',
+      subtitle: 'category',
+      logo: 'logo',
+      portraitMale: 'portraitMale',
+      portraitFemale: 'portraitFemale',
+      portraitOther: 'portraitOther',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({title, subtitle, logo, portraitMale, portraitFemale, portraitOther}) {
+      const hasAllPortraits = portraitMale && portraitFemale && portraitOther
+      const icon = hasAllPortraits ? '👥 ' : '👤 '
+
       return {
-        title: title || 'Unnamed Race',
-        subtitle: subtitle?.slice(0, 100) || 'No tagline provided',
-        media,
+        title: icon + (title || 'Unnamed Race'),
+        subtitle: subtitle || 'No category specified',
+        media: logo || portraitMale || null,
       }
     },
   },

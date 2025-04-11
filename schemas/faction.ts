@@ -2,91 +2,172 @@
 // schemas/faction.ts
 // ===========================
 
-import {flexibleReferenceArray} from '../schemaVariables/schemaVariables'
-import {ValidationRule} from '../types/types'
+import {Rule} from 'sanity'
+import {createNamedEntity} from '../schemaTypes/presets.js'
+import {createDefaultFieldsets} from '../schemaTypes/presets.js'
+import {aethericResonance} from '../schemaTypes/aethericTypes.js'
+import {flexibleReferenceArray} from '../schemaVariables/schemaVariables.js'
+
+interface FactionStatus {
+  isHostile?: boolean
+  isSecret?: boolean
+}
+
+interface FactionPreview {
+  title?: string
+  subtitle?: string
+  media?: any
+  status?: FactionStatus
+}
 
 export default {
   name: 'faction',
   title: 'Faction',
   type: 'document',
-  fieldsets: [
-    {name: 'identity', title: 'Faction Identity', options: {columns: 2}},
-    {name: 'lore', title: 'Lore & Origins', options: {columns: 2}},
-  ],
+  ...createDefaultFieldsets,
   fields: [
-    // Core Info
-    {
-      name: 'name',
-      title: 'Faction Name',
-      type: 'string',
-      validation: (Rule: ValidationRule) => Rule.required(),
-      fieldset: 'identity',
-    },
-    {
-      name: 'slug',
-      title: 'Faction ID',
-      type: 'slug',
-      options: {source: 'name'},
-      validation: (Rule: ValidationRule) => Rule.required(),
-      fieldset: 'identity',
-    },
+    // Base fields with image only
+    ...Object.values(createNamedEntity({withImage: true, withLore: false})),
+
+    // Core Identity
     {
       name: 'tagline',
       title: 'Short Motto or Tagline',
       type: 'string',
-      fieldset: 'identity',
+      fieldset: 'core',
     },
+    {
+      name: 'status',
+      title: 'Faction Status',
+      type: 'object',
+      fieldset: 'core',
+      fields: [
+        {name: 'isHostile', title: 'Is Hostile to Player?', type: 'boolean'},
+        {name: 'isSecret', title: 'Is Secret Society?', type: 'boolean'},
+      ],
+      validation: (Rule: Rule) => Rule.required(),
+    },
+    {
+      name: 'influence',
+      title: 'Influence Level',
+      type: 'number',
+      fieldset: 'core',
+      validation: (Rule: Rule) =>
+        Rule.required().min(1).max(100).error('Influence must be between 1 and 100'),
+    },
+
+    // Aetheric Properties
+    aethericResonance,
+
+    // Visual Identity
     {
       name: 'emblem',
       title: 'Faction Emblem or Symbol',
       type: 'image',
       options: {hotspot: true},
-      fieldset: 'identity',
+      fieldset: 'visuals',
     },
 
-    // Lore & Backstory
-    {name: 'summary', title: 'Faction Summary', type: 'text', fieldset: 'lore'},
-    {name: 'beliefs', title: 'Beliefs and Goals', type: 'text', fieldset: 'lore'},
-    {name: 'hierarchy', title: 'Structure and Hierarchy', type: 'text', fieldset: 'lore'},
-    {name: 'origin', title: 'Origin or Founding Story', type: 'text', fieldset: 'lore'},
-    {name: 'alignment', title: 'Aetheric Alignment (Optional)', type: 'string', fieldset: 'lore'},
+    // Core Lore & Background (gameplay relevant)
+    {
+      name: 'origin',
+      title: 'Origin Summary',
+      type: 'text',
+      fieldset: 'core',
+      description: "Brief overview of the faction's founding or emergence",
+    },
+    {
+      name: 'beliefs',
+      title: 'Core Beliefs and Goals',
+      type: 'text',
+      fieldset: 'core',
+      description: 'Key principles and objectives that drive the faction',
+    },
+    {
+      name: 'hierarchy',
+      title: 'Basic Structure',
+      type: 'text',
+      fieldset: 'core',
+      description: 'Overview of ranks and organization relevant to gameplay',
+    },
 
-    // Optional Extras
+    // Detailed Lore References
+    {
+      name: 'factionLore',
+      title: 'Faction Lore',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'lore'}]}],
+      fieldset: 'lore',
+      description: "Detailed lore entries about this faction's history, culture, and influence",
+      validation: (Rule: Rule) =>
+        Rule.required().error('At least one lore entry is required for faction documentation'),
+    },
+
+    // Tags
     {
       name: 'tags',
-      title: 'Tags (religious, imperial, outlawed, etc)',
+      title: 'Tags',
       type: 'array',
       of: [{type: 'string'}],
-    },
-    {
-      name: 'influenceZone',
-      title: 'Primary Region or Zone of Influence',
-      type: 'reference',
-      to: [{type: 'location'}],
+      options: {
+        layout: 'tags',
+        list: [
+          {title: 'Religious', value: 'religious'},
+          {title: 'Imperial', value: 'imperial'},
+          {title: 'Mercantile', value: 'mercantile'},
+          {title: 'Academic', value: 'academic'},
+          {title: 'Military', value: 'military'},
+          {title: 'Outlawed', value: 'outlawed'},
+          {title: 'Secret', value: 'secret'},
+        ],
+      },
     },
 
-    // Lore Reference
-    {name: 'loreEntry', title: 'Linked Lore Entry', type: 'reference', to: [{type: 'lore'}]},
+    // World Integration
+    flexibleReferenceArray('influenceZone', 'Primary Region or Zone of Influence', ['location']),
 
     // References
     flexibleReferenceArray('notableMembers', 'Notable Members (NPCs)', ['npc']),
-    flexibleReferenceArray('associatedEntities', 'Connected Classes / Races / Items', [
-      'characterClass',
-      'characterRace',
-      'item',
-    ]),
+    {
+      name: 'associatedEntities',
+      title: 'Connected Classes / Races / Items',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          title: 'Character Class',
+          name: 'classReference',
+          to: [{type: 'characterClass'}],
+        },
+        {
+          type: 'reference',
+          title: 'Character Race',
+          name: 'raceReference',
+          to: [{type: 'characterRace'}],
+        },
+        {
+          type: 'reference',
+          title: 'Item',
+          name: 'itemReference',
+          to: [{type: 'item'}],
+        },
+      ],
+    },
   ],
 
   preview: {
     select: {
       title: 'name',
-      subtitle: 'tagline',
+      subtitle: 'type',
       media: 'emblem',
+      status: 'status',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({title, subtitle, media, status}: FactionPreview) {
+      const prefix = status?.isHostile ? '⚔️ ' : status?.isSecret ? '🎭 ' : '⚜️ '
+
       return {
-        title: title || 'Unnamed Faction',
-        subtitle: subtitle || 'No tagline provided',
+        title: prefix + (title || 'Unnamed Faction'),
+        subtitle: subtitle || 'No type specified',
         media,
       }
     },

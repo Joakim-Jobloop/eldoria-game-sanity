@@ -16,6 +16,12 @@ import {
 import {ValidationRule} from '../types/types'
 import {effectPreview} from '../utils/previews'
 
+interface TraitPreview {
+  title?: string
+  subtitle?: string
+  media?: any
+}
+
 export default {
   name: 'trait',
   title: 'Trait',
@@ -103,7 +109,7 @@ export default {
       subtitle: 'traitType',
       media: 'icon',
     },
-    prepare({title, subtitle, media}: {title?: string; subtitle?: string; media?: any}) {
+    prepare({title, subtitle, media}: TraitPreview) {
       return {
         title: title || 'Unnamed Trait',
         subtitle: subtitle || 'No category set',
